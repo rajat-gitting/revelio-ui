@@ -1,37 +1,26 @@
 import React from 'react';
 import './BlogListing.css';
+import { BlogCard } from './BlogCard';
 
-interface BlogListingProps {
-  posts: Array<any>;
-  error: boolean;
-  loading: boolean;
-}
+type BlogListingProps = {
+  posts: Array<{
+    id: string;
+    imageUrl: string;
+    title: string;
+    excerpt: string;
+  }>;
+};
 
-const EmptyState = () => (
-  <div className="empty-state">
-    <p>No blog posts available.</p>
-  </div>
-);
-
-const ErrorState = () => (
-  <div className="error-state">
-    <p>Failed to load blog posts. Please try again later.</p>
-  </div>
-);
-
-export const BlogListing = ({ posts, error, loading }: BlogListingProps) => {
-  if (error) {
-    return <ErrorState />;
-  }
-
-  if (!loading && posts.length === 0) {
-    return <EmptyState />;
-  }
-
+export const BlogListing: React.FC<BlogListingProps> = ({ posts }) => {
   return (
     <div className="blog-listing">
-      {posts.map((post) => (
-        <div key={post.id}>{post.title}</div>
+      {posts.map(post => (
+        <BlogCard
+          key={post.id}
+          imageUrl={post.imageUrl}
+          title={post.title}
+          excerpt={post.excerpt}
+        />
       ))}
     </div>
   );

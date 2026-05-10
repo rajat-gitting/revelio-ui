@@ -1,17 +1,7 @@
-.empty-state,
-.error-state {
-  text-align: center;
-  padding: 2rem;
-  margin: 2rem 0;
-  border-radius: 4px;
-}
-
-.empty-state {
-  background-color: #f8f9fa;
-  color: #6c757d;
-}
-
-.error-state {
-  background-color: #f8d7da;
-  color: #721c24;
+.blog-listing {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
