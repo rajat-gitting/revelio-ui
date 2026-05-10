@@ -1,0 +1,43 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as m;
+
+.primary {
+  @include m.button-base;
+  background-color: $color-primary;
+  color: #fff;
+  border-color: $color-primary;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: $color-primary-hover;
+  border-color: $color-primary-hover;
+}
+
+.secondary {
+  @include m.button-base;
+  background-color: transparent;
+  color: $color-text;
+  border-color: $color-border;
+}
+
+.secondary:hover:not(:disabled) {
+  border-color: $color-text-muted;
+  color: #fff;
+}
+
+.danger {
+  @include m.button-base;
+  background-color: color-mix(in oklab, $color-error 85%, #450a0a);
+  color: #fff;
+  border-color: $color-error;
+}
+
+.danger:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.primary:disabled,
+.secondary:disabled,
+.danger:disabled {
+  @include m.button-base-disabled;
+}

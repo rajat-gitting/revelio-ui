@@ -1,0 +1,24 @@
+@use 'reset';
+@use 'variables' as v;
+
+:root {
+  --color-primary: #{v.$color-primary};
+  --color-primary-hover: #{v.$color-primary-hover};
+  --color-bg: #{v.$color-bg};
+  --color-surface: #{v.$color-surface};
+  --color-text: #{v.$color-text};
+  --color-text-muted: #{v.$color-text-muted};
+  --color-border: #{v.$color-border};
+  --color-error: #{v.$color-error};
+  --color-success: #{v.$color-success};
+  --font-family-base: #{v.$font-family-base};
+  --font-size-base: #{v.$font-size-base};
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: v.$font-weight-normal;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}

@@ -1,0 +1,29 @@
+@use '../styles/variables' as *;
+@use '../styles/mixins' as m;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+}
+
+.lead {
+  color: $color-text-muted;
+  font-size: $font-size-lg;
+  max-width: 40rem;
+}
+
+.card {
+  @include m.card;
+  padding: $space-xl;
+}
+
+.status {
+  font-size: $font-size-base;
+  color: $color-text;
+}

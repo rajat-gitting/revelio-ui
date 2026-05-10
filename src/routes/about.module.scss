@@ -1,0 +1,25 @@
+@use '../styles/variables' as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+}
+
+.body {
+  color: $color-text-muted;
+  font-size: $font-size-base;
+  max-width: 42rem;
+  line-height: 1.6;
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: $font-size-sm;
+  color: $color-primary-hover;
+}

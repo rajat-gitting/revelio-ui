@@ -1,0 +1,51 @@
+@use 'variables' as *;
+
+@mixin mobile {
+  @media (max-width: ($breakpoint-tablet - 1px)) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: $breakpoint-tablet) and (max-width: ($breakpoint-desktop - 1px)) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $breakpoint-desktop) {
+    @content;
+  }
+}
+
+@mixin card {
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+}
+
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  line-height: 1.2;
+  border-radius: $radius-md;
+  border: 1px solid transparent;
+  padding: $space-sm $space-lg;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+@mixin button-base-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

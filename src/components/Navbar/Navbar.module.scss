@@ -1,0 +1,40 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as m;
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+}
+
+.link {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-muted;
+  text-decoration: none;
+  padding: $space-sm $space-md;
+  border-radius: $radius-full;
+  border: 1px solid transparent;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.link:hover {
+  color: $color-text;
+  border-color: $color-border;
+  background-color: rgb(255 255 255 / 4%);
+}
+
+.active {
+  color: $color-text;
+  border-color: $color-primary;
+  background-color: rgb(37 99 235 / 15%);
+}
+
+@include m.mobile {
+  .nav {
+    flex-wrap: wrap;
+  }
+}
