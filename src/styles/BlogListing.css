@@ -1,11 +1,20 @@
 .blog-listing {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  width: 100%;
+  gap: 20px;
 }
 
-.blog-listing > * {
-  flex: 1;
-  min-height: 200px;
+.load-more-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.load-more-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }

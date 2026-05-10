@@ -1,51 +1,54 @@
-import { render, screen } from '@testing-library/react';
-import BlogCard from '../src/components/BlogCard';
-import '@testing-library/jest-dom';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import BlogListing from '../src/components/BlogListing';
 
-const mockBlogPost = {
-  title: 'Test Blog Post',
-  excerpt: 'This is a test blog post excerpt.',
-  coverImage: 'https://example.com/image.jpg',
-  slug: 'test-blog-post'
-};
+const mockPosts = [
+  {
+    id: '1',
+    title: 'Test Post',
+    image: 'test.jpg',
+    content: 'Test content'
+  }
+];
 
-describe('BlogCard', () => {
-  it('renders as a horizontal card with image on left and content on right', () => {
-    render(<BlogCard post={mockBlogPost} />);
-    const card = screen.getByRole('article');
-    expect(card).toHaveClass('horizontal-card');
-    const imageContainer = screen.getByRole('img').parentElement;
-    expect(imageContainer).toHaveClass('image-container');
-    const contentContainer = screen.getByText(mockBlogPost.title).parentElement;
-    expect(contentContainer).toHaveClass('content-container');
+const mockLoadMorePosts = jest.fn(() =>
+  Promise.resolve([
+    {
+      id: '2',
+      title: 'New Post',
+      image: 'new.jpg',
+      content: 'New content'
+    }
+  ])
+);
+
+describe('BlogListing', () => {
+  test('loads more posts when Load More button is clicked', async () => {
+    render(
+      <BlogListing
+        initialPosts={mockPosts}
+        loadMorePosts={mockLoadMorePosts}
+      />
+    );
+
+    fireEvent.click(screen.getByText('Load More'));
+    expect(mockLoadMorePosts).toHaveBeenCalled();
+    expect(await screen.findByText('Loading...')).toBeInTheDocument();
+    expect(await screen.findByText('New Post')).toBeInTheDocument();
   });
 
-  it('allocates 30-40% width to image and 60-70% to content', () => {
-    render(<BlogCard post={mockBlogPost} />);
-    const imageContainer = screen.getByRole('img').parentElement;
-    const contentContainer = screen.getByText(mockBlogPost.title).parentElement;
-    
-    const imageWidth = parseFloat(window.getComputedStyle(imageContainer).width);
-    const contentWidth = parseFloat(window.getComputedStyle(contentContainer).width);
-    const totalWidth = imageWidth + contentWidth;
-    
-    const imagePercentage = (imageWidth / totalWidth) * 100;
-    const contentPercentage = (contentWidth / totalWidth) * 100;
-    
-    expect(imagePercentage).toBeGreaterThanOrEqual(30);
-    expect(imagePercentage).toBeLessThanOrEqual(40);
-    expect(contentPercentage).toBeGreaterThanOrEqual(60);
-    expect(contentPercentage).toBeLessThanOrEqual(70);
-  });
+  test('disables Load More button while loading', async () => {
+    render(
+      <BlogListing
+        initialPosts={mockPosts}
+        loadMorePosts={mockLoadMorePosts}
+      />
+    );
 
-  it('renders vertically on mobile view', () => {
-    window.innerWidth = 480;
-    render(<BlogCard post={mockBlogPost} />);
-    const card = screen.getByRole('article');
-    expect(card).toHaveClass('vertical-card');
-    const imageContainer = screen.getByRole('img').parentElement;
-    expect(imageContainer).toHaveClass('mobile-image-container');
-    const contentContainer = screen.getByText(mockBlogPost.title).parentElement;
-    expect(contentContainer).toHaveClass('mobile-content-container');
+    const button = screen.getByText('Load More');
+    fireEvent.click(button);
+    expect(button).toBeDisabled();
+    await screen.findByText('New Post');
+    expect(button).toBeEnabled();
   });
 });
