@@ -1,40 +1,38 @@
-import React, { useState } from 'react';
-import BlogCard from './BlogCard';
+import React from 'react';
 import './BlogListing.css';
 
 interface BlogListingProps {
-  initialPosts: Array<{ id: string; title: string; image: string; content: string }>;
-  loadMorePosts: () => Promise<Array<{ id: string; title: string; image: string; content: string }>>;
+  posts: Array<any>;
+  error: boolean;
+  loading: boolean;
 }
 
-const BlogListing: React.FC<BlogListingProps> = ({ initialPosts, loadMorePosts }) => {
-  const [posts, setPosts] = useState(initialPosts);
-  const [isLoading, setIsLoading] = useState(false);
+const EmptyState = () => (
+  <div className="empty-state">
+    <p>No blog posts available.</p>
+  </div>
+);
 
-  const handleLoadMore = async () => {
-    setIsLoading(true);
-    try {
-      const newPosts = await loadMorePosts();
-      setPosts((prevPosts) => [...prevPosts, ...newPosts]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const ErrorState = () => (
+  <div className="error-state">
+    <p>Failed to load blog posts. Please try again later.</p>
+  </div>
+);
+
+export const BlogListing = ({ posts, error, loading }: BlogListingProps) => {
+  if (error) {
+    return <ErrorState />;
+  }
+
+  if (!loading && posts.length === 0) {
+    return <EmptyState />;
+  }
 
   return (
     <div className="blog-listing">
       {posts.map((post) => (
-        <BlogCard key={post.id} {...post} />
+        <div key={post.id}>{post.title}</div>
       ))}
-      <button
-        className="load-more-button"
-        onClick={handleLoadMore}
-        disabled={isLoading}
-      >
-        {isLoading ? 'Loading...' : 'Load More'}
-      </button>
     </div>
   );
 };
-
-export default BlogListing;

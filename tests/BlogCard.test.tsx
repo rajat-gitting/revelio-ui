@@ -1,54 +1,19 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import BlogListing from '../src/components/BlogListing';
-
-const mockPosts = [
-  {
-    id: '1',
-    title: 'Test Post',
-    image: 'test.jpg',
-    content: 'Test content'
-  }
-];
-
-const mockLoadMorePosts = jest.fn(() =>
-  Promise.resolve([
-    {
-      id: '2',
-      title: 'New Post',
-      image: 'new.jpg',
-      content: 'New content'
-    }
-  ])
-);
+import { render } from '@testing-library/react';
+import { BlogListing } from '../components/BlogListing';
 
 describe('BlogListing', () => {
-  test('loads more posts when Load More button is clicked', async () => {
-    render(
-      <BlogListing
-        initialPosts={mockPosts}
-        loadMorePosts={mockLoadMorePosts}
-      />
+  it('displays empty state when no posts', () => {
+    const { getByText } = render(
+      <BlogListing posts={[]} error={false} loading={false} />
     );
-
-    fireEvent.click(screen.getByText('Load More'));
-    expect(mockLoadMorePosts).toHaveBeenCalled();
-    expect(await screen.findByText('Loading...')).toBeInTheDocument();
-    expect(await screen.findByText('New Post')).toBeInTheDocument();
+    expect(getByText('No blog posts available.')).toBeInTheDocument();
   });
 
-  test('disables Load More button while loading', async () => {
-    render(
-      <BlogListing
-        initialPosts={mockPosts}
-        loadMorePosts={mockLoadMorePosts}
-      />
+  it('displays error state when error occurs', () => {
+    const { getByText } = render(
+      <BlogListing posts={[]} error={true} loading={false} />
     );
-
-    const button = screen.getByText('Load More');
-    fireEvent.click(button);
-    expect(button).toBeDisabled();
-    await screen.findByText('New Post');
-    expect(button).toBeEnabled();
+    expect(getByText('Failed to load blog posts. Please try again later.')).toBeInTheDocument();
   });
 });

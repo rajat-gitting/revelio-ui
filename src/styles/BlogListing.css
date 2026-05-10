@@ -1,20 +1,17 @@
-.blog-listing {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.load-more-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
+.empty-state,
+.error-state {
+  text-align: center;
+  padding: 2rem;
+  margin: 2rem 0;
   border-radius: 4px;
-  cursor: pointer;
 }
 
-.load-more-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+.empty-state {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.error-state {
+  background-color: #f8d7da;
+  color: #721c24;
 }
