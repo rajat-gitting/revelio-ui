@@ -1,19 +1,19 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { BlogListing } from '../components/BlogListing';
+import { BlogCardSkeleton } from '../src/components/BlogCard';
 
-describe('BlogListing', () => {
-  it('displays empty state when no posts', () => {
-    const { getByText } = render(
-      <BlogListing posts={[]} error={false} loading={false} />
-    );
-    expect(getByText('No blog posts available.')).toBeInTheDocument();
+describe('BlogCardSkeleton', () => {
+  it('renders horizontal skeleton layout', () => {
+    const { container } = render(<BlogCardSkeleton />);
+    const skeleton = container.firstChild;
+    expect(skeleton).toHaveClass('blog-card-skeleton');
+    expect(skeleton).toHaveStyle('display: flex');
   });
 
-  it('displays error state when error occurs', () => {
-    const { getByText } = render(
-      <BlogListing posts={[]} error={true} loading={false} />
-    );
-    expect(getByText('Failed to load blog posts. Please try again later.')).toBeInTheDocument();
+  it('renders vertical layout on mobile', () => {
+    window.innerWidth = 500;
+    const { container } = render(<BlogCardSkeleton />);
+    const skeleton = container.firstChild;
+    expect(skeleton).toHaveStyle('flex-direction: column');
   });
 });
