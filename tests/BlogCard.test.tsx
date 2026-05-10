@@ -1,26 +1,34 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { BlogCard } from '../components/BlogCard';
+import { render } from '@testing-library/react';
+import BlogListing from '../src/components/BlogListing';
 
-const mockProps = {
-  coverImage: 'https://example.com/image.jpg',
-  title: 'Test Blog Post',
-  excerpt: 'This is a test blog post excerpt'
-};
+describe('BlogListing', () => {
+  const mockPosts = [
+    {
+      id: '1',
+      title: 'Test Post 1',
+      excerpt: 'This is a test post',
+      imageUrl: 'https://example.com/image1.jpg'
+    },
+    {
+      id: '2',
+      title: 'Test Post 2',
+      excerpt: 'This is another test post',
+      imageUrl: 'https://example.com/image2.jpg'
+    }
+  ];
 
-describe('BlogCard', () => {
-  it('renders horizontal layout with image on left and content on right', () => {
-    render(<BlogCard {...mockProps} />);
-    const card = screen.getByRole('article');
-    expect(card).toHaveStyle('display: flex');
-    expect(card.firstChild).toHaveClass('card-image-container');
-    expect(card.lastChild).toHaveClass('card-content');
+  it('renders posts in a single column', () => {
+    const { container } = render(<BlogListing posts={mockPosts} />);
+    const listing = container.querySelector('.blog-listing');
+    expect(listing).toHaveStyle('flex-direction: column');
   });
 
-  it('renders vertical layout on mobile', () => {
-    window.innerWidth = 767;
-    render(<BlogCard {...mockProps} />);
-    const card = screen.getByRole('article');
-    expect(card).toHaveStyle('flex-direction: column');
+  it('renders posts with consistent height', () => {
+    const { container } = render(<BlogListing posts={mockPosts} />);
+    const cards = container.querySelectorAll('.blog-listing > *');
+    cards.forEach((card) => {
+      expect(card).toHaveStyle('min-height: 200px');
+    });
   });
 });
