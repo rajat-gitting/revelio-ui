@@ -1,17 +1,13 @@
 .blog-card {
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  padding: 20px;
+  display: block;
+  text-decoration: none;
+  color: inherit;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
-  text-decoration: none;
-  color: inherit;
-  height: 300px;
-  overflow: hidden;
+  padding: var(--space-lg);
 }
 
 .blog-card:hover {
@@ -19,41 +15,10 @@
   transform: translateY(-2px);
 }
 
-.blog-card__image-container {
-  flex: 0 0 35%;
-  overflow: hidden;
-  border-radius: var(--radius-md);
-  height: 100%;
-}
-
-.blog-card__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.blog-card__image-placeholder {
-  width: 100%;
-  height: 100%;
-  min-height: 200px;
-  background: var(--color-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.blog-card__logo {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-muted);
-}
-
 .blog-card__content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  height: 100%;
+  gap: var(--space-md);
 }
 
 .blog-card__title {
@@ -83,13 +48,13 @@
 .blog-card__meta {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-sm);
 }
 
 .blog-card__author {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-sm);
 }
 
 .blog-card__avatar {
@@ -121,12 +86,12 @@
 .blog-card__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .blog-card__tag {
   font-size: var(--font-size-sm);
-  padding: 4px 8px;
+  padding: var(--space-xs) var(--space-sm);
   background: var(--color-bg);
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
@@ -134,7 +99,7 @@
 
 .blog-card__tag-more {
   font-size: var(--font-size-sm);
-  padding: 4px 8px;
+  padding: var(--space-xs) var(--space-sm);
   color: var(--color-text-muted);
   font-style: italic;
 }
@@ -142,18 +107,4 @@
 .blog-card__timestamp {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-}
-
-@media (max-width: 768px) {
-  .blog-card {
-    flex-direction: column;
-    gap: 16px;
-    height: auto;
-  }
-
-  .blog-card__image-container {
-    flex: 1;
-    aspect-ratio: 16/9;
-    height: auto;
-  }
 }
