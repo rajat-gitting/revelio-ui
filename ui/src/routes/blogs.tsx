@@ -12,7 +12,8 @@ import styles from '@/routes/blogs.module.scss';
 
 const PAGE_SIZE = 10;
 
-export const Route = createFileRoute('/blogs')({\n  component: BlogsPage,
+export const Route = createFileRoute('/blogs')({
+  component: BlogsPage,
 });
 
 function BlogsPage() {
