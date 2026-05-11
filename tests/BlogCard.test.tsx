@@ -15,14 +15,25 @@ const mockPost = {
   publishedAt: '2023-01-01T00:00:00Z'
 };
 
+const mockPostWithoutImage = {
+  ...mockPost,
+  coverImageUrl: null
+};
+
 describe('BlogCard', () => {
-  it('renders without image container', () => {
+  it('does not render image container when coverImageUrl is present', () => {
     render(<BlogCard post={mockPost} />);
     const imageContainer = screen.queryByTestId('image-container');
     expect(imageContainer).not.toBeInTheDocument();
   });
 
-  it('renders all content elements', () => {
+  it('does not render image container when coverImageUrl is null', () => {
+    render(<BlogCard post={mockPostWithoutImage} />);
+    const imageContainer = screen.queryByTestId('image-container');
+    expect(imageContainer).not.toBeInTheDocument();
+  });
+
+  it('renders all content elements without image container', () => {
     render(<BlogCard post={mockPost} />);
     expect(screen.getByText('Test Post')).toBeInTheDocument();
     expect(screen.getByText('This is a test post excerpt')).toBeInTheDocument();
