@@ -15,6 +15,11 @@ const mockPost = {
   publishedAt: '2023-01-01T00:00:00Z'
 };
 
+const mockPostLongContent = {
+  ...mockPost,
+  excerpt: 'This is a much longer test post excerpt that should be truncated to maintain consistent card height. The card should not grow vertically regardless of content length.'
+};
+
 describe('BlogCard', () => {
   it('renders horizontal layout with correct proportions on desktop', () => {
     render(<BlogCard post={mockPost} />);
@@ -51,5 +56,15 @@ describe('BlogCard', () => {
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('test')).toBeInTheDocument();
     expect(screen.getByText('example')).toBeInTheDocument();
+  });
+
+  it('maintains consistent height regardless of content length', () => {
+    render(<BlogCard post={mockPost} />);
+    render(<BlogCard post={mockPostLongContent} />);
+    
+    const cards = screen.getAllByRole('link');
+    const heights = cards.map(card => card.getBoundingClientRect().height);
+    
+    expect(heights[0]).toBe(heights[1]);
   });
 });
