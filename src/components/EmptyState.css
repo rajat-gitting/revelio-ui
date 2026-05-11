@@ -13,6 +13,45 @@
 
 .empty-state__message {
   font-size: 1.125rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin: 0;
+}
+
+.empty-state__card {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  height: 300px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.empty-state__card-image {
+  flex: 0 0 35%;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.empty-state__card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .empty-state__card {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .empty-state__card-image {
+    flex: 1;
+    aspect-ratio: 16/9;
+  }
 }
