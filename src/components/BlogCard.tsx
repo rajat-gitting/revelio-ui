@@ -46,15 +46,6 @@ function BlogCard({ post }: BlogCardProps): React.JSX.Element {
 
   return (
     <a href={`/blog/${post.id}`} className="blog-card" aria-label={`Read ${post.title}`}>
-      <div className="blog-card__image-container">
-        {post.coverImageUrl ? (
-          <img src={post.coverImageUrl} alt={post.title} className="blog-card__image" />
-        ) : (
-          <div className="blog-card__image-placeholder">
-            <span className="blog-card__logo">Revelio</span>
-          </div>
-        )}
-      </div>
       <div className="blog-card__content">
         <h2 className="blog-card__title">{post.title}</h2>
         <p className="blog-card__excerpt">{post.excerpt}</p>
