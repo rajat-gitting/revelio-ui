@@ -1,0 +1,34 @@
+@use '../../styles/variables' as *;
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  text-decoration: none;
+  user-select: none;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: $radius-sm;
+}
+
+.wordmark {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 480px) {
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .wordmark {
+    font-size: $font-size-base;
+  }
+}

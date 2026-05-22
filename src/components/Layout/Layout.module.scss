@@ -13,15 +13,11 @@
   justify-content: space-between;
   gap: $space-lg;
   padding: $space-md $space-xl;
-  border-bottom: 1px solid $color-border;
-  background-color: color-mix(in oklab, $color-surface 90%, transparent);
-  backdrop-filter: blur(10px);
-}
-
-.title {
-  font-size: $font-size-lg;
-  font-weight: $font-weight-bold;
-  letter-spacing: 0.03em;
+  background-color: $color-surface;
+  box-shadow: 0 1px 0 $color-border, $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .main {
