@@ -19,12 +19,16 @@
   background-color: $color-surface;
   border-bottom: 1px solid $color-border;
   box-shadow: $shadow-sm;
+  backdrop-filter: blur(8px);
 }
 
 .title {
-  font-size: $font-size-lg;
+  font-family: $font-family-heading;
+  font-size: $font-size-xl;
   font-weight: $font-weight-bold;
-  letter-spacing: 0.03em;
+  letter-spacing: $letter-spacing-wide;
+  color: $color-text;
+  line-height: $line-height-tight;
 }
 
 .main {
@@ -33,6 +37,7 @@
   max-width: $breakpoint-desktop;
   margin: 0 auto;
   width: 100%;
+  color: $color-text-secondary;
 }
 
 @include m.mobile {

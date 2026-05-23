@@ -32,8 +32,9 @@
   gap: $space-sm;
   font-family: $font-family-base;
   font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  line-height: 1.2;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
+  letter-spacing: $letter-spacing-normal;
   border-radius: $radius-md;
   border: 1px solid transparent;
   padding: $space-sm $space-lg;
@@ -42,7 +43,8 @@
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 @mixin button-base-disabled {

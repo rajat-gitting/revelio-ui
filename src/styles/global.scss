@@ -2,16 +2,55 @@
 @use 'variables' as v;
 
 :root {
+  // Primary colors
   --color-primary: #{v.$color-primary};
   --color-primary-hover: #{v.$color-primary-hover};
+  --color-primary-light: #{v.$color-primary-light};
+  --color-primary-dark: #{v.$color-primary-dark};
+
+  // Secondary colors
+  --color-secondary: #{v.$color-secondary};
+  --color-secondary-hover: #{v.$color-secondary-hover};
+  --color-secondary-light: #{v.$color-secondary-light};
+  --color-secondary-dark: #{v.$color-secondary-dark};
+
+  // Accent colors
+  --color-accent: #{v.$color-accent};
+  --color-accent-hover: #{v.$color-accent-hover};
+  --color-accent-light: #{v.$color-accent-light};
+  --color-accent-dark: #{v.$color-accent-dark};
+
+  // Background colors
   --color-bg: #{v.$color-bg};
+  --color-bg-secondary: #{v.$color-bg-secondary};
   --color-surface: #{v.$color-surface};
+  --color-surface-elevated: #{v.$color-surface-elevated};
+
+  // Text colors
   --color-text: #{v.$color-text};
+  --color-text-secondary: #{v.$color-text-secondary};
   --color-text-muted: #{v.$color-text-muted};
+  --color-text-disabled: #{v.$color-text-disabled};
+
+  // Border colors
   --color-border: #{v.$color-border};
+  --color-border-light: #{v.$color-border-light};
+  --color-border-focus: #{v.$color-border-focus};
+
+  // Semantic colors
   --color-error: #{v.$color-error};
+  --color-error-dark: #{v.$color-error-dark};
+  --color-warning: #{v.$color-warning};
+  --color-warning-dark: #{v.$color-warning-dark};
   --color-success: #{v.$color-success};
+  --color-success-dark: #{v.$color-success-dark};
+  --color-info: #{v.$color-info};
+  --color-info-dark: #{v.$color-info-dark};
+
+  // Typography
   --font-family-base: #{v.$font-family-base};
+  --font-family-heading: #{v.$font-family-heading};
+  --font-family-mono: #{v.$font-family-mono};
   --font-size-base: #{v.$font-size-base};
 }
 
@@ -19,6 +58,68 @@ body {
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   font-weight: v.$font-weight-normal;
+  line-height: v.$line-height-normal;
   color: var(--color-text);
   background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Heading styles
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-heading);
+  font-weight: v.$font-weight-bold;
+  line-height: v.$line-height-tight;
+  letter-spacing: v.$letter-spacing-tight;
+  color: var(--color-text);
+  margin: 0;
+}
+
+h1 {
+  font-size: v.$font-size-4xl;
+}
+
+h2 {
+  font-size: v.$font-size-3xl;
+}
+
+h3 {
+  font-size: v.$font-size-2xl;
+}
+
+h4 {
+  font-size: v.$font-size-xl;
+}
+
+h5 {
+  font-size: v.$font-size-lg;
+}
+
+h6 {
+  font-size: v.$font-size-base;
+}
+
+// Paragraph and small text
+p {
+  font-size: v.$font-size-base;
+  line-height: v.$line-height-relaxed;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+small {
+  font-size: v.$font-size-sm;
+  color: var(--color-text-muted);
+}
+
+// Code and preformatted text
+code,
+pre {
+  font-family: var(--font-family-mono);
+  font-size: v.$font-size-sm;
 }
