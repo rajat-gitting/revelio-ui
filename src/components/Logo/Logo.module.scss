@@ -20,6 +20,14 @@
   box-shadow: $shadow-sm;
 }
 
+.iconBg {
+  fill: $color-primary;
+}
+
+.iconFg {
+  fill: $color-text;
+}
+
 .wordmark {
   color: $color-text;
 }
