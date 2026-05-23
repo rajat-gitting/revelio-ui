@@ -1,0 +1,36 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as m;
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  color: $color-text;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+}
+
+.wordmark {
+  color: $color-text;
+}
+
+@include m.mobile {
+  .logo {
+    font-size: $font-size-base;
+  }
+
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}

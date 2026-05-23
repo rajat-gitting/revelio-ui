@@ -8,6 +8,7 @@
 }
 
 .link {
+  position: relative;
   font-size: $font-size-base;
   font-weight: $font-weight-medium;
   color: $color-text-muted;
@@ -24,13 +25,25 @@
 .link:hover {
   color: $color-text;
   border-color: $color-border;
-  background-color: rgb(255 255 255 / 4%);
+  background-color: rgb(255 255 255 / 6%);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.link:focus-visible {
+  outline: 2px solid $color-primary;
+  outline-offset: 2px;
 }
 
 .active {
   color: $color-text;
   border-color: $color-primary;
-  background-color: rgb(37 99 235 / 15%);
+  background-color: rgb(37 99 235 / 20%);
+  font-weight: $font-weight-bold;
+}
+
+.active:hover {
+  text-decoration: none;
 }
 
 @include m.mobile {
