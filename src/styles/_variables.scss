@@ -80,6 +80,8 @@ $font-family-heading:
   Arial,
   sans-serif;
 
+// Monospace font family for code blocks and inline code
+// Used in global.scss for <code> and <pre> elements
 $font-family-mono:
   ui-monospace,
   'SF Mono',

@@ -16,8 +16,8 @@ Primary colors are used for main actions, links, and key UI elements.
 - **Primary Dark**: `#1e40af` - Darker variant
 
 **WCAG Contrast Ratios** (on dark background `#0b1120`):
-- Primary: 7.2:1 (AA compliant)
-- Primary Light: 8.1:1 (AA compliant)
+- Primary: 3.64:1 (suitable for large text only, AA: 3:1+)
+- Primary Light: 5.12:1 (AA compliant for normal text)
 
 ### Secondary Colors (Purple Scale)
 
@@ -29,7 +29,7 @@ Secondary colors are used for complementary UI elements and accents.
 - **Secondary Dark**: `#5b21b6` - Darker variant
 
 **WCAG Contrast Ratios** (on dark background):
-- Secondary: 6.8:1 (AA compliant)
+- Secondary: 3.30:1 (suitable for large text only, AA: 3:1+)
 
 ### Accent Colors (Emerald Scale)
 
@@ -41,7 +41,7 @@ Accent colors are used for success states, highlights, and call-to-action elemen
 - **Accent Dark**: `#047857` - Darker variant
 
 **WCAG Contrast Ratios** (on dark background):
-- Accent: 6.5:1 (AA compliant)
+- Accent: 7.42:1 (AAA compliant for normal text)
 
 ### Background Colors
 
@@ -52,10 +52,10 @@ Accent colors are used for success states, highlights, and call-to-action elemen
 
 ### Text Colors
 
-- **Text**: `#f8fafc` - Primary text (contrast ratio: 15.8:1, AAA compliant)
-- **Text Secondary**: `#e2e8f0` - Secondary text (contrast ratio: 13.2:1, AAA compliant)
-- **Text Muted**: `#94a3b8` - Muted/placeholder text (contrast ratio: 7.1:1, AA compliant)
-- **Text Disabled**: `#64748b` - Disabled state text (contrast ratio: 4.8:1, AA compliant)
+- **Text**: `#f8fafc` - Primary text (contrast ratio: 18.0:1, AAA compliant)
+- **Text Secondary**: `#e2e8f0` - Secondary text (contrast ratio: 15.3:1, AAA compliant)
+- **Text Muted**: `#94a3b8` - Muted/placeholder text (contrast ratio: 7.3:1, AAA compliant)
+- **Text Disabled**: `#64748b` - Disabled state text (contrast ratio: 4.0:1, suitable for large text only)
 
 ### Border Colors
 
