@@ -5,6 +5,7 @@ import { useApi } from '@/hooks/useApi';
 import { getBlogs } from '@/api/services/blogService';
 import type { BlogPostDto } from '@/types/api';
 import BlogCard from '@/components/BlogCard';
+import HeroSection from '@/components/HeroSection/HeroSection';
 import SkeletonCard from '@/components/SkeletonCard';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
@@ -39,42 +40,71 @@ function HomePage() {
     }
   };
 
+  const hero = (
+    <HeroSection
+      headline="Welcome to Our Blog"
+      subheading="Discover articles, insights, and stories"
+      ctaLabel="Explore Articles"
+      ctaHref="#blog-section"
+    />
+  );
+
   if (loading) {
     return (
-      <div className={styles.grid}>
-        {[0, 1, 2].map((i) => <SkeletonCard key={i} />)}
-      </div>
+      <>
+        {hero}
+        <div id="blog-section" className={styles.grid}>
+          {[0, 1, 2].map((i) => <SkeletonCard key={i} />)}
+        </div>
+      </>
     );
   }
 
   if (error) {
-    return <ErrorState message="Something went wrong. Please try again." onRetry={refetch} />;
+    return (
+      <>
+        {hero}
+        <div id="blog-section">
+          <ErrorState message="Something went wrong. Please try again." onRetry={refetch} />
+        </div>
+      </>
+    );
   }
 
   if (posts.length === 0) {
-    return <EmptyState message="No posts yet. Check back soon." />;
+    return (
+      <>
+        {hero}
+        <div id="blog-section">
+          <EmptyState message="No posts yet. Check back soon." />
+        </div>
+      </>
+    );
   }
 
   const showLoadMore = hasMore && (firstPage?.length ?? 0) === PAGE_SIZE;
 
   return (
-    <section className={styles.section}>
-      <div className={styles.grid}>
-        {posts.map((post) => <BlogCard key={post.id} post={post} />)}
-      </div>
-      {showLoadMore && (
-        <div className={styles.loadMore}>
-          <button
-            className={styles.loadMoreButton}
-            onClick={() => {
-              void loadMore();
-            }}
-            disabled={loadingMore}
-          >
-            {loadingMore ? <span className={styles.spinner} /> : 'Load More'}
-          </button>
+    <>
+      {hero}
+      <section id="blog-section" className={styles.section}>
+        <div className={styles.grid}>
+          {posts.map((post) => <BlogCard key={post.id} post={post} />)}
         </div>
-      )}
-    </section>
+        {showLoadMore && (
+          <div className={styles.loadMore}>
+            <button
+              className={styles.loadMoreButton}
+              onClick={() => {
+                void loadMore();
+              }}
+              disabled={loadingMore}
+            >
+              {loadingMore ? <span className={styles.spinner} /> : 'Load More'}
+            </button>
+          </div>
+        )}
+      </section>
+    </>
   );
 }
