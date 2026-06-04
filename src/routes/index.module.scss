@@ -8,6 +8,8 @@
   background-color: #836565;
   min-height: 100vh;
   padding: $space-2xl;
+  // Criterion 9: minimum 32px (2rem) vertical spacing gap after hero on all viewports
+  margin-top: $space-2xl;
 }
 
 .grid {

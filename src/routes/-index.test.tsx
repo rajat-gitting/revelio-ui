@@ -53,10 +53,12 @@ describe('HomePage styles', () => {
     const { container } = renderHomePage();
 
     await waitFor(() => {
-      expect(container.querySelector('section')).toBeInTheDocument();
+      expect(container.querySelector('#blog-section')).toBeInTheDocument();
     });
 
-    const section = container.querySelector('section')!;
+    // The blog-card section carries the .section module class and the id="blog-section"
+    // The hero section (also a <section>) is rendered first but does not have this class.
+    const section = container.querySelector('#blog-section')!;
     expect(section).toHaveClass(styles.section!);
   });
 
