@@ -66,7 +66,9 @@ function HomePage() {
         <div className={styles.loadMore}>
           <button
             className={styles.loadMoreButton}
-            onClick={loadMore}
+            onClick={() => {
+              void loadMore();
+            }}
             disabled={loadingMore}
           >
             {loadingMore ? <span className={styles.spinner} /> : 'Load More'}

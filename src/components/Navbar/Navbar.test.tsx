@@ -35,7 +35,7 @@ describe('Navbar', () => {
     renderNavbarAt('/');
 
     const homeLink = await screen.findByRole('link', { name: 'Home' });
-    expect(homeLink).toHaveClass(styles.active);
+    expect(homeLink).toHaveClass(styles.active!);
   });
 
   it('exposes an accessible name on the nav landmark', async () => {

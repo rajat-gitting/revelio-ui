@@ -24,8 +24,12 @@ interface BlogCardProps {
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 0) return '';
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  const first = parts[0];
+  if (!first) return '';
+  if (parts.length === 1) return first.charAt(0).toUpperCase();
+  const last = parts[parts.length - 1];
+  if (!last) return first.charAt(0).toUpperCase();
+  return (first.charAt(0) + last.charAt(0)).toUpperCase();
 }
 
 function formatTimestamp(publishedAt: string): string {

@@ -36,7 +36,7 @@ describe('Layout', () => {
     renderLayout();
 
     const header = await screen.findByTestId('app-header');
-    expect(header).toHaveClass(styles.header);
+    expect(header).toHaveClass(styles.header!);
   });
 
   it('renders children inside the main element', async () => {

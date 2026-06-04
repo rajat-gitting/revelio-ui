@@ -1,27 +1,16 @@
-import React from 'react';
 import './BlogListing.css';
-import { BlogCard } from './BlogCard';
+import BlogCard, { type BlogPost } from './BlogCard';
 
-type BlogListingProps = {
-  posts: Array<{
-    id: string;
-    imageUrl: string;
-    title: string;
-    excerpt: string;
-  }>;
-};
+interface BlogListingProps {
+  posts: BlogPost[];
+}
 
-export const BlogListing: React.FC<BlogListingProps> = ({ posts }) => {
+export function BlogListing({ posts }: BlogListingProps) {
   return (
     <div className="blog-listing">
-      {posts.map(post => (
-        <BlogCard
-          key={post.id}
-          imageUrl={post.imageUrl}
-          title={post.title}
-          excerpt={post.excerpt}
-        />
+      {posts.map((post) => (
+        <BlogCard key={post.id} post={post} />
       ))}
     </div>
   );
-};
+}

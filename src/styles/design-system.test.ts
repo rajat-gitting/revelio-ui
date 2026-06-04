@@ -106,10 +106,11 @@ describe('Design System - Accessibility', () => {
    * https://www.w3.org/TR/WCAG20-TECHS/G17.html
    */
   function getLuminance(r: number, g: number, b: number): number {
-    const [rs, gs, bs] = [r, g, b].map((c) => {
+    const channels = [r, g, b].map((c) => {
       const val = c / 255;
       return val <= 0.03928 ? val / 12.92 : ((val + 0.055) / 1.055) ** 2.4;
-    });
+    }) as [number, number, number];
+    const [rs, gs, bs] = channels;
     return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   }
 
@@ -135,13 +136,18 @@ describe('Design System - Accessibility', () => {
    */
   function hexToRgb(hex: string): { r: number; g: number; b: number } {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : { r: 0, g: 0, b: 0 };
+    if (!result) return { r: 0, g: 0, b: 0 };
+    const r = result[1];
+    const g = result[2];
+    const b = result[3];
+    if (r === undefined || g === undefined || b === undefined) {
+      return { r: 0, g: 0, b: 0 };
+    }
+    return {
+      r: parseInt(r, 16),
+      g: parseInt(g, 16),
+      b: parseInt(b, 16),
+    };
   }
 
   it('primary colors meet WCAG AA contrast ratio for large text on dark background', () => {

@@ -34,7 +34,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'react/prop-types': 'off',
   },
-  ignorePatterns: ['dist', 'node_modules', 'coverage', 'src/routeTree.gen.ts', 'vite.config.ts'],
+  ignorePatterns: ['dist', 'node_modules', 'coverage', 'src/routeTree.gen.ts', 'vite.config.ts', 'tests/**', 'ui/**'],
   overrides: [
     {
       files: ['**/*.{test,spec}.{ts,tsx}'],

@@ -1,4 +1,3 @@
-import React from 'react';
 import './SkeletonCard.css';
 
 function SkeletonCard(): JSX.Element {

@@ -1,9 +1,9 @@
-import React from 'react';
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import EmptyState from './EmptyState';
 
 describe('EmptyState', () => {
-  test('renders empty state message', () => {
+  it('renders empty state message', () => {
     const message = 'No posts yet. Check back soon.';
     render(<EmptyState message={message} />);
 
@@ -11,7 +11,7 @@ describe('EmptyState', () => {
     expect(messageElement).toBeInTheDocument();
   });
 
-  test('renders with custom message', () => {
+  it('renders with custom message', () => {
     const customMessage = 'No results found.';
     render(<EmptyState message={customMessage} />);
 
@@ -19,7 +19,7 @@ describe('EmptyState', () => {
     expect(messageElement).toBeInTheDocument();
   });
 
-  test('applies correct CSS class to container', () => {
+  it('applies correct CSS class to container', () => {
     const message = 'No posts yet. Check back soon.';
     const { container } = render(<EmptyState message={message} />);
 
@@ -27,7 +27,7 @@ describe('EmptyState', () => {
     expect(emptyStateDiv).toBeInTheDocument();
   });
 
-  test('applies correct CSS class to message', () => {
+  it('applies correct CSS class to message', () => {
     const message = 'No posts yet. Check back soon.';
     render(<EmptyState message={message} />);
 
@@ -35,7 +35,7 @@ describe('EmptyState', () => {
     expect(messageElement).toHaveClass('empty-state__message');
   });
 
-  test('renders message inside content wrapper', () => {
+  it('renders message inside content wrapper', () => {
     const message = 'No posts yet. Check back soon.';
     const { container } = render(<EmptyState message={message} />);
 
