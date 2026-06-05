@@ -57,7 +57,7 @@ jobs:
           # claude_args (the v1 action has no `model` / `mcp_config` inputs).
           # --mcp-config takes the FILE written in the step above.
           claude_args: |
-            --model claude-opus-4-8
+            --model claude-sonnet-4-6
             --mcp-config ${{ runner.temp }}/mcp-config.json
           prompt: |
             Review this pull request as a senior engineer.
