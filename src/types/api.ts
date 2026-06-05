@@ -59,3 +59,13 @@ export interface BlogSearchParams {
   page?: number;
   size?: number;
 }
+
+/** Spring Data Page<T> response shape */
+export interface PagedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  /** 0-based current page index */
+  number: number;
+  size: number;
+}

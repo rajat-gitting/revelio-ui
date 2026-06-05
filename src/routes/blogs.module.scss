@@ -326,6 +326,38 @@
   }
 }
 
+// ============================================================================
+// Prev / Next Pagination (CR-24)
+// ============================================================================
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-lg;
+  padding: $space-xl 0;
+}
+
+.paginationButton {
+  @include m.button-base;
+  background: $color-primary;
+  color: $color-text;
+  min-width: 100px;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+  }
+
+  &:disabled {
+    @include m.button-base-disabled;
+  }
+}
+
+.paginationInfo {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  white-space: nowrap;
+}
+
 .spinner {
   display: inline-block;
   width: 1rem;
