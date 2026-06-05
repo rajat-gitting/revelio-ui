@@ -24,6 +24,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The action has no `mcp_config` input; --mcp-config (below) takes a FILE
+      # path, so write the Atlassian MCP server config to a temp file first. The
+      # Basic auth header is injected from the repo secret here, not committed.
+      - name: Write Atlassian MCP config
+        env:
+          ATLASSIAN_BASIC_AUTH: ${{ secrets.ATLASSIAN_BASIC_AUTH }}
+        run: |
+          cat > "$RUNNER_TEMP/mcp-config.json" <<EOF
+          {
+            "mcpServers": {
+              "atlassian": {
+                "type": "http",
+                "url": "https://mcp.atlassian.com/v1/mcp",
+                "headers": { "Authorization": "Basic ${ATLASSIAN_BASIC_AUTH}" }
+              }
+            }
+          }
+          EOF
+
       - name: Review with Claude
         uses: anthropics/claude-code-action@v1
         with:
@@ -34,20 +53,12 @@ jobs:
           # NOTE: the secret cannot be named GITHUB_* (GitHub reserves that
           # prefix), so the reviewer PAT secret is REVIEWER_GITHUB_TOKEN.
           github_token: ${{ secrets.REVIEWER_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
-          # Opus for review-grade reasoning.
-          model: claude-opus-4-8
-          # Connect the Atlassian MCP server so the agent can fetch the linked
-          # ticket's acceptance criteria referenced in the PR body/branch name.
-          mcp_config: |
-            {
-              "mcpServers": {
-                "atlassian": {
-                  "type": "http",
-                  "url": "https://mcp.atlassian.com/v1/mcp",
-                  "headers": { "Authorization": "Basic ${{ secrets.ATLASSIAN_BASIC_AUTH }}" }
-                }
-              }
-            }
+          # Model + MCP server are passed through to the Claude CLI via
+          # claude_args (the v1 action has no `model` / `mcp_config` inputs).
+          # --mcp-config takes the FILE written in the step above.
+          claude_args: |
+            --model claude-opus-4-8
+            --mcp-config ${{ runner.temp }}/mcp-config.json
           prompt: |
             Review this pull request as a senior engineer.
             1. Read CLAUDE.md in this repo for the coding standards.
