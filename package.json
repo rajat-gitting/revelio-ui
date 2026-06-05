@@ -13,7 +13,12 @@
     "lint": "eslint . --ext ts,tsx",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate:routes": "node scripts/generate-routes.mjs",
+    "prelint": "node scripts/generate-routes.mjs",
+    "pretest": "node scripts/generate-routes.mjs",
+    "prebuild": "node scripts/generate-routes.mjs",
+    "pretypecheck": "node scripts/generate-routes.mjs"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.45.0",
