@@ -29,9 +29,11 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # Approve/review as the SEPARATE reviewer identity — GitHub forbids the
-          # PR author from approving their own PR. Falls back to the default
+          # PR author from approving their own PR. Falls back to the built-in
           # GITHUB_TOKEN (comment-only) if the reviewer PAT is not configured.
-          github_token: ${{ secrets.GITHUB_REVIEWER_TOKEN || secrets.GITHUB_TOKEN }}
+          # NOTE: the secret cannot be named GITHUB_* (GitHub reserves that
+          # prefix), so the reviewer PAT secret is REVIEWER_GITHUB_TOKEN.
+          github_token: ${{ secrets.REVIEWER_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           # Opus for review-grade reasoning.
           model: claude-opus-4-8
           # Connect the Atlassian MCP server so the agent can fetch the linked
