@@ -44,9 +44,15 @@ function formatTimestamp(publishedAt: string): string {
   }
 }
 
+export function getReadingTime(excerpt: string): number {
+  const wordCount = excerpt.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(wordCount / 200));
+}
+
 function BlogCard({ post }: BlogCardProps): React.JSX.Element {
   const displayTags = post.tags.slice(0, 3);
   const extraTags = post.tags.length - 3;
+  const readingTime = getReadingTime(post.excerpt);
 
   return (
     <a href={`/blog/${post.id}`} className="blog-card" aria-label={`Read ${post.title}`}>
@@ -67,6 +73,9 @@ function BlogCard({ post }: BlogCardProps): React.JSX.Element {
               <span key={i} className="blog-card__tag">{tag}</span>
             ))}
             {extraTags > 0 && <span className="blog-card__tag-more">+{extraTags} more</span>}
+          </div>
+          <div className="blog-card__reading-time">
+            <span aria-label={`${readingTime} minute read`}>{readingTime} min read</span>
           </div>
           <time className="blog-card__timestamp" dateTime={post.publishedAt}>
             {formatTimestamp(post.publishedAt)}

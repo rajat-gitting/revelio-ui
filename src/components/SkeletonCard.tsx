@@ -22,6 +22,7 @@ function SkeletonCard(): JSX.Element {
             <div className="skeleton-card__tag" />
           </div>
         </div>
+        <div className="skeleton-card__reading-time" />
         <div className="skeleton-card__timestamp" />
       </div>
     </div>

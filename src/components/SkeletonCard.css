@@ -19,11 +19,13 @@
   border-radius: var(--radius-md);
 }
 
+/* AC14: content padding updated to 24px to match BlogCard */
 .skeleton-card__content {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 4px 4px 4px 0;
 }
 
 .skeleton-card__title {
@@ -66,13 +68,15 @@
   gap: 8px;
 }
 
+/* AC14: avatar updated to 40px × 40px to match BlogCard */
 .skeleton-card__avatar {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: linear-gradient(90deg, var(--color-bg) 25%, var(--color-border) 50%, var(--color-bg) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
 .skeleton-card__author-name {
@@ -92,6 +96,16 @@
 .skeleton-card__tag {
   width: 60px;
   height: 20px;
+  background: linear-gradient(90deg, var(--color-bg) 25%, var(--color-border) 50%, var(--color-bg) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* AC14: reading-time placeholder row to match new BlogCard reading-time element */
+.skeleton-card__reading-time {
+  width: 80px;
+  height: 12px;
   background: linear-gradient(90deg, var(--color-bg) 25%, var(--color-border) 50%, var(--color-bg) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
