@@ -10,7 +10,8 @@ import type { BlogPostDto } from '@/types/api';
 import { Route } from './index';
 import styles from '@/routes/index.module.scss';
 
-vi.mock('@/api/services/blogService', () => ({
+vi.mock('@/api/services/blogService', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/api/services/blogService')>()),
   getBlogs: vi.fn(),
 }));
 

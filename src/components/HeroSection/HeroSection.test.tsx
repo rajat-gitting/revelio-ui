@@ -21,7 +21,8 @@ import HeroSection from './HeroSection';
 // Helpers
 // ---------------------------------------------------------------------------
 
-vi.mock('@/api/services/blogService', () => ({
+vi.mock('@/api/services/blogService', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/api/services/blogService')>()),
   getBlogs: vi.fn(),
 }));
 
