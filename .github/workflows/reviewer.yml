@@ -56,9 +56,13 @@ jobs:
           # Model + MCP server are passed through to the Claude CLI via
           # claude_args (the v1 action has no `model` / `mcp_config` inputs).
           # --mcp-config takes the FILE written in the step above.
+          # --allowedTools must list the Atlassian MCP tools, or the agent's
+          # calls to fetch acceptance criteria are DENIED (default toolset omits
+          # MCP tools). The mcp__atlassian__ prefix allows that server's tools.
           claude_args: |
             --model claude-sonnet-4-6
             --mcp-config ${{ runner.temp }}/mcp-config.json
+            --allowedTools "mcp__atlassian"
           prompt: |
             Review this pull request as a senior engineer.
             1. Read CLAUDE.md in this repo for the coding standards.
