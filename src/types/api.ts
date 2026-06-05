@@ -36,3 +36,26 @@ export interface BlogPostDto {
 export interface BlogListDto {
   data: BlogPostDto[];
 }
+
+/** Search / filter response envelope */
+export interface BlogSearchResponse {
+  total: number;
+  page: number;
+  size: number;
+  results: BlogPostDto[];
+}
+
+/** Available filter options returned by GET /api/v1/posts/filters */
+export interface BlogFiltersDto {
+  authors: BlogAuthorDto[];
+  categories: string[];
+}
+
+/** Query params for the search endpoint */
+export interface BlogSearchParams {
+  q?: string;
+  category?: string[];
+  author?: string[];
+  page?: number;
+  size?: number;
+}
