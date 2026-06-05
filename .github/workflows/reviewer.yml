@@ -1,0 +1,80 @@
+# Reviewer agent — drop this file into EACH target repo (backend, frontend).
+#
+# It runs `anthropics/claude-code-action@v1` on every pull request, reviews the
+# diff against the repo's CLAUDE.md and the linked Jira ticket's acceptance
+# criteria (fetched via the Atlassian MCP server), and submits a GitHub review.
+#
+# The review identity is the *reviewer* GitHub App — never the dev App — because
+# GitHub forbids a PR author from approving their own PR.
+name: agentic-reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Review with Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Approve/review as the SEPARATE reviewer identity — GitHub forbids the
+          # PR author from approving their own PR. Falls back to the default
+          # GITHUB_TOKEN (comment-only) if the reviewer PAT is not configured.
+          github_token: ${{ secrets.GITHUB_REVIEWER_TOKEN || secrets.GITHUB_TOKEN }}
+          # Opus for review-grade reasoning.
+          model: claude-opus-4-8
+          # Connect the Atlassian MCP server so the agent can fetch the linked
+          # ticket's acceptance criteria referenced in the PR body/branch name.
+          mcp_config: |
+            {
+              "mcpServers": {
+                "atlassian": {
+                  "type": "http",
+                  "url": "https://mcp.atlassian.com/v1/mcp",
+                  "headers": { "Authorization": "Basic ${{ secrets.ATLASSIAN_BASIC_AUTH }}" }
+                }
+              }
+            }
+          prompt: |
+            Review this pull request as a senior engineer.
+            1. Read CLAUDE.md in this repo for the coding standards.
+            2. Find the Jira ticket key in the PR title, body, or branch name
+               (pattern: feature/<TICKET-KEY>). Fetch its acceptance criteria
+               via the atlassian MCP server.
+            3. Verify the diff satisfies EVERY acceptance criterion and follows
+               the standards. Leave specific inline comments.
+            4. Submit your review: approve only if all criteria are met and the
+               standards are followed; otherwise request changes.
+
+      # Notify the orchestrator. Inngest exposes a public event-ingest endpoint,
+      # so CI can push the verdict without the orchestrator needing a public URL.
+      # Omit this step (and use the GitHub review poller instead) for local runs.
+      - name: Notify orchestrator
+        if: ${{ env.INNGEST_EVENT_KEY != '' }}
+        env:
+          INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
+          TICKET_KEY: ${{ github.event.pull_request.head.ref }}
+        run: |
+          curl -sf -X POST \
+            "https://inn.gs/e/${INNGEST_EVENT_KEY}" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"name\": \"ticket/review.submitted\",
+              \"data\": {
+                \"ticketKey\": \"${TICKET_KEY#feature/}\",
+                \"owner\": \"${{ github.repository_owner }}\",
+                \"repo\": \"${{ github.event.repository.name }}\",
+                \"prNumber\": ${{ github.event.pull_request.number }}
+              }
+            }"
