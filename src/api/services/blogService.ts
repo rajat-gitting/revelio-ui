@@ -3,10 +3,12 @@ import { ENDPOINTS } from '@/api/endpoints';
 import type { BlogFiltersDto, BlogPostDto, BlogSearchParams, BlogSearchResponse, PagedResponse } from '@/types/api';
 
 export async function getBlogs(page = 0, size = 10): Promise<BlogPostDto[]> {
-  const response = await apiGet<{ data: BlogPostDto[] }>(ENDPOINTS.BLOGS, {
+  // GET /api/blogs returns ApiResponse<PagedResponse<...>>: the posts array
+  // lives at data.content, not data itself.
+  const response = await apiGet<{ data: PagedResponse<BlogPostDto> }>(ENDPOINTS.BLOGS, {
     params: { page, size },
   });
-  return response.data;
+  return response.data.content;
 }
 
 export async function searchPosts(params: BlogSearchParams): Promise<BlogSearchResponse> {

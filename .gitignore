@@ -6,3 +6,7 @@ coverage
 .env.local
 src/routeTree.gen.ts
 *.tsbuildinfo
+
+# playwright smoke artifacts
+test-results/
+playwright-report/
