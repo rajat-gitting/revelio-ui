@@ -18,7 +18,8 @@
     "prelint": "node scripts/generate-routes.mjs",
     "pretest": "node scripts/generate-routes.mjs",
     "prebuild": "node scripts/generate-routes.mjs",
-    "pretypecheck": "node scripts/generate-routes.mjs"
+    "pretypecheck": "node scripts/generate-routes.mjs",
+    "smoke": "playwright install chromium && playwright test --config=playwright.smoke.config.ts"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.45.0",
@@ -29,6 +30,7 @@
     "react-dom": "^18.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tanstack/router-plugin": "^1.45.0",
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^16.0.0",
