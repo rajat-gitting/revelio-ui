@@ -1,20 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
-import { getBlogFilters, searchPosts } from '@/api/services/blogService';
+import { getBlogFilters, getPosts, searchPosts } from '@/api/services/blogService';
 import BlogCard from '@/components/BlogCard';
 import SkeletonCard from '@/components/SkeletonCard';
-import type { BlogAuthorDto, BlogFiltersDto, BlogPostDto } from '@/types/api';
+import type { BlogAuthorDto, BlogFiltersDto, BlogPostDto, PagedResponse } from '@/types/api';
 import { useDebounce } from '@/hooks/useDebounce';
 import styles from './blogs.module.scss';
 
 // ---------------------------------------------------------------------------
-// Route search-params schema (URL state — CR-11)
+// Route search-params schema (URL state — CR-11, CR-24)
 // ---------------------------------------------------------------------------
 interface BlogsSearch {
   q: string;
   category: string[];
   author: string[];
+  /** 1-based page number as displayed in the URL (subtract 1 before calling API) */
   page: number;
 }
 
@@ -31,7 +32,8 @@ function validateBlogsSearch(raw: Record<string, unknown>): BlogsSearch {
       : typeof raw.author === 'string'
         ? [raw.author]
         : [],
-    page: typeof raw.page === 'number' ? Math.max(0, Math.floor(raw.page)) : 0,
+    // 1-based in URL; default 1 (= API page 0)
+    page: typeof raw.page === 'number' ? Math.max(1, Math.floor(raw.page)) : 1,
   };
 }
 
@@ -40,7 +42,7 @@ export const Route = createFileRoute('/blogs')({
   component: BlogsPage,
 });
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 12;
 
 // ---------------------------------------------------------------------------
 // BlogsPage
@@ -61,12 +63,13 @@ function BlogsPage() {
   // Filter options (fetched once on mount — see Technical Notes)
   const [filterOptions, setFilterOptions] = useState<BlogFiltersDto>({ authors: [], categories: [] });
 
+  // Pagination state (CR-24)
+  const [pagedData, setPagedData] = useState<PagedResponse<BlogPostDto> | null>(null);
+
   // Search result state
   const [results, setResults] = useState<BlogPostDto[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
 
   // Debounced query — ≤300 ms (CR-2)
   const debouncedQ = useDebounce(inputValue, 300);
@@ -78,7 +81,7 @@ function BlogsPage() {
     // Only navigate if the debounced value differs from the URL param
     if (debouncedQ !== q) {
       void navigate({
-        search: (prev) => ({ ...prev, q: debouncedQ, page: 0 }),
+        search: (prev) => ({ ...prev, q: debouncedQ, page: 1 }),
         replace: true,
       });
     }
@@ -102,47 +105,53 @@ function BlogsPage() {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Fetch search results whenever URL params change (CR-2, CR-4, CR-11)
+  // Fetch results whenever URL params change (CR-2, CR-4, CR-11, CR-24)
   // ---------------------------------------------------------------------------
   const fetchResults = useCallback(
-    async (append = false) => {
+    async () => {
       try {
-        if (!append) setLoading(true);
-        else setLoadingMore(true);
+        setLoading(true);
 
-        const data = await searchPosts({
-          q: q || undefined,
-          category: category.length ? category : undefined,
-          author: author.length ? author : undefined,
-          page: append ? page : 0,
-          size: PAGE_SIZE,
-        });
+        // Convert 1-based URL page to 0-based API page
+        const apiPage = page - 1;
 
-        const newResults = data.results;
+        const hasFilters = !!q || category.length > 0 || author.length > 0;
 
-        if (append) {
-          setResults((prev) => {
-            const merged = [...prev, ...newResults];
-            setLastValidResults(merged);
-            return merged;
+        if (hasFilters) {
+          // Use search endpoint when filters are active
+          const data = await searchPosts({
+            q: q || undefined,
+            category: category.length ? category : undefined,
+            author: author.length ? author : undefined,
+            page: apiPage,
+            size: PAGE_SIZE,
           });
-        } else {
+
+          const newResults = data.results;
           setResults(newResults);
           setLastValidResults(newResults);
+          setTotal(data.total);
+          setLastValidTotal(data.total);
+          setPagedData(null);
+        } else {
+          // Use paginated posts endpoint for plain listing (CR-24)
+          const data = await getPosts(apiPage, PAGE_SIZE);
+          setResults(data.content);
+          setLastValidResults(data.content);
+          setTotal(data.totalElements);
+          setLastValidTotal(data.totalElements);
+          setPagedData(data);
         }
-        setTotal(data.total);
-        setLastValidTotal(data.total);
-        setHasMore(newResults.length === PAGE_SIZE);
+
         setErrorBanner(null);
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Search failed. Please try again.';
+        const msg = err instanceof Error ? err.message : 'Failed to load posts. Please try again.';
         setErrorBanner(msg);
-        // Keep last valid results visible (CR-12)
+        // Keep last valid results visible (CR-12, CR-24)
         setResults(lastValidResults);
         setTotal(lastValidTotal);
       } finally {
         setLoading(false);
-        setLoadingMore(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -150,9 +159,9 @@ function BlogsPage() {
   );
 
   useEffect(() => {
-    void fetchResults(false);
+    void fetchResults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, category, author]);
+  }, [q, category, author, page]);
 
   // ---------------------------------------------------------------------------
   // Keyboard shortcut: "/" focuses the search input (CR-10)
@@ -184,46 +193,57 @@ function BlogsPage() {
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = Array.from(e.target.selectedOptions, (o) => o.value).filter(Boolean);
-    void navigate({ search: (prev) => ({ ...prev, category: selected, page: 0 }), replace: true });
+    void navigate({ search: (prev) => ({ ...prev, category: selected, page: 1 }), replace: true });
   };
 
   const handleAuthorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = Array.from(e.target.selectedOptions, (o) => o.value).filter(Boolean);
-    void navigate({ search: (prev) => ({ ...prev, author: selected, page: 0 }), replace: true });
+    void navigate({ search: (prev) => ({ ...prev, author: selected, page: 1 }), replace: true });
   };
 
   const removeCategory = (cat: string) => {
     void navigate({
-      search: (prev) => ({ ...prev, category: category.filter((c) => c !== cat), page: 0 }),
+      search: (prev) => ({ ...prev, category: category.filter((c) => c !== cat), page: 1 }),
       replace: true,
     });
   };
 
   const removeAuthor = (a: string) => {
     void navigate({
-      search: (prev) => ({ ...prev, author: author.filter((au) => au !== a), page: 0 }),
+      search: (prev) => ({ ...prev, author: author.filter((au) => au !== a), page: 1 }),
       replace: true,
     });
   };
 
   const removeSearchQuery = () => {
     setInputValue('');
-    void navigate({ search: (prev) => ({ ...prev, q: '', page: 0 }), replace: true });
+    void navigate({ search: (prev) => ({ ...prev, q: '', page: 1 }), replace: true });
   };
 
   // Clear all — CR-7
   const clearAll = () => {
     setInputValue('');
-    void navigate({ search: () => ({ q: '', category: [], author: [], page: 0 }), replace: true });
+    void navigate({ search: () => ({ q: '', category: [], author: [], page: 1 }), replace: true });
   };
 
-  const handleLoadMore = () => {
-    const nextPage = page + 1;
-    void navigate({ search: (prev) => ({ ...prev, page: nextPage }), replace: true });
-    void fetchResults(true);
+  // Pagination handlers — CR-24: use pushState-style navigation (not replace)
+  const handlePrevPage = () => {
+    const prevPage = Math.max(1, page - 1);
+    void navigate({ search: (prev) => ({ ...prev, page: prevPage }) });
+  };
+
+  const handleNextPage = () => {
+    void navigate({ search: (prev) => ({ ...prev, page: page + 1 }) });
   };
 
   const hasActiveFilters = !!q || category.length > 0 || author.length > 0;
+
+  // For pagination controls — use pagedData when available, else derive from total
+  const totalPages = pagedData ? pagedData.totalPages : Math.ceil(total / PAGE_SIZE);
+  // Only show pagination controls when there are multiple pages (CR-24: not when < 12 posts total)
+  const showPagination = !hasActiveFilters && totalPages > 1;
+  const isFirstPage = page <= 1;
+  const isLastPage = page >= totalPages;
 
   // ---------------------------------------------------------------------------
   // Render
@@ -384,15 +404,30 @@ function BlogsPage() {
           <div className={styles.grid} data-testid="results-grid">
             {results.map((post) => <BlogCard key={post.id} post={post} />)}
           </div>
-          {hasMore && (
-            <div className={styles.loadMore}>
+
+          {/* ── Pagination controls — CR-24 ── */}
+          {showPagination && (
+            <div className={styles.pagination} data-testid="pagination">
               <button
-                className={styles.loadMoreButton}
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                data-testid="load-more"
+                className={styles.paginationButton}
+                onClick={handlePrevPage}
+                disabled={loading || isFirstPage}
+                aria-disabled={isFirstPage}
+                data-testid="prev-button"
               >
-                {loadingMore ? <span className={styles.spinner} /> : 'Load More'}
+                Previous
+              </button>
+              <span className={styles.paginationInfo} data-testid="pagination-info">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                className={styles.paginationButton}
+                onClick={handleNextPage}
+                disabled={loading || isLastPage}
+                aria-disabled={isLastPage}
+                data-testid="next-button"
+              >
+                Next
               </button>
             </div>
           )}

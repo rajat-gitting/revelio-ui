@@ -8,8 +8,8 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 
-import { searchPosts, getBlogFilters } from '@/api/services/blogService';
-import type { BlogPostDto, BlogSearchResponse, BlogFiltersDto } from '@/types/api';
+import { searchPosts, getBlogFilters, getPosts } from '@/api/services/blogService';
+import type { BlogPostDto, BlogSearchResponse, BlogFiltersDto, PagedResponse } from '@/types/api';
 import { Route } from './blogs';
 
 // ---------------------------------------------------------------------------
@@ -19,6 +19,7 @@ vi.mock('@/api/services/blogService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/services/blogService')>()),
   searchPosts: vi.fn(),
   getBlogFilters: vi.fn(),
+  getPosts: vi.fn(),
 }));
 
 // ---------------------------------------------------------------------------
@@ -44,6 +45,18 @@ const makeSearchResponse = (
   page: 0,
   size: 20,
   results: posts,
+});
+
+const makePagedResponse = (
+  posts: BlogPostDto[],
+  totalElements?: number,
+  totalPages?: number
+): PagedResponse<BlogPostDto> => ({
+  content: posts,
+  totalElements: totalElements ?? posts.length,
+  totalPages: totalPages ?? 1,
+  number: 0,
+  size: 12,
 });
 
 const makeFilters = (): BlogFiltersDto => ({
@@ -81,6 +94,7 @@ function renderBlogsPage(initialSearch = '') {
 describe('CR-1: Search input is always visible', () => {
   beforeEach(() => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(3)));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3)));
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
@@ -97,6 +111,7 @@ describe('CR-1: Search input is always visible', () => {
 describe('CR-2: Search with debounce', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse([]));
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
@@ -147,6 +162,7 @@ describe('CR-2: Search with debounce', () => {
 describe('CR-3: Filter controls', () => {
   beforeEach(() => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(2)));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(2)));
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
@@ -222,7 +238,8 @@ describe('CR-5: Result count', () => {
   });
 
   it('displays the total result count returned by the API', async () => {
-    vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(14), 14));
+    // No active filters → getPosts is used; pass 14 as totalElements
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(12), 14, 2));
     renderBlogsPage();
 
     await waitFor(() => {
@@ -231,7 +248,7 @@ describe('CR-5: Result count', () => {
   });
 
   it('displays "1 result" in singular when total is 1', async () => {
-    vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(1), 1));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(1), 1, 1));
     renderBlogsPage();
 
     await waitFor(() => {
@@ -240,7 +257,7 @@ describe('CR-5: Result count', () => {
   });
 
   it('displays "0 results" when there are no matches', async () => {
-    vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse([], 0));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse([], 0, 0));
     renderBlogsPage();
 
     await waitFor(() => {
@@ -255,6 +272,7 @@ describe('CR-5: Result count', () => {
 describe('CR-6: Active filter chips', () => {
   beforeEach(() => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(2)));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(2)));
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
@@ -298,6 +316,7 @@ describe('CR-6: Active filter chips', () => {
 describe('CR-7: Clear all and individual chip removal', () => {
   beforeEach(() => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(2)));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(2)));
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
@@ -377,19 +396,18 @@ describe('CR-8: Empty state', () => {
 
   it('empty-state reset button triggers a cleared search', async () => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse([], 0));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3)));
     renderBlogsPage('?q=zxqvbnm');
 
     await waitFor(() => {
       expect(screen.getByTestId('empty-state-reset')).toBeInTheDocument();
     });
 
-    vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(3)));
     fireEvent.click(screen.getByTestId('empty-state-reset'));
 
+    // After clearing all filters, getPosts is called (no active filters)
     await waitFor(() => {
-      const calls = vi.mocked(searchPosts).mock.calls;
-      const cleared = calls.some(([p]) => !p.q && !p.category?.length && !p.author?.length);
-      expect(cleared).toBe(true);
+      expect(vi.mocked(getPosts)).toHaveBeenCalled();
     });
   });
 });
@@ -400,6 +418,7 @@ describe('CR-8: Empty state', () => {
 describe('CR-9: Responsive structure', () => {
   beforeEach(() => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(2)));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(2)));
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
@@ -422,6 +441,7 @@ describe('CR-9: Responsive structure', () => {
 describe('CR-10: Keyboard shortcut "/"', () => {
   beforeEach(() => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(2)));
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(2)));
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
@@ -467,6 +487,7 @@ describe('CR-11: In-place updates', () => {
   });
 
   it('re-renders results without unmounting the page container', async () => {
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3)));
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(3)));
     renderBlogsPage();
 
@@ -491,6 +512,8 @@ describe('CR-12: Non-blocking error handling', () => {
   });
 
   it('shows an error banner when the backend request fails', async () => {
+    // Without active filters, getPosts is called — make it reject
+    vi.mocked(getPosts).mockRejectedValue(new Error('Network error'));
     vi.mocked(searchPosts).mockRejectedValue(new Error('Network error'));
     renderBlogsPage();
 
@@ -500,6 +523,8 @@ describe('CR-12: Non-blocking error handling', () => {
   });
 
   it('keeps last valid results visible when a subsequent request fails', async () => {
+    // First call (no filters): getPosts succeeds
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3), 3));
     // First call succeeds
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(3), 3));
     renderBlogsPage();
@@ -519,6 +544,7 @@ describe('CR-12: Non-blocking error handling', () => {
   });
 
   it('error banner can be dismissed independently', async () => {
+    vi.mocked(getPosts).mockRejectedValue(new Error('Network error'));
     vi.mocked(searchPosts).mockRejectedValue(new Error('Network error'));
     renderBlogsPage();
 
