@@ -57,6 +57,11 @@ jobs:
           # NOTE: the secret cannot be named GITHUB_* (GitHub reserves that
           # prefix), so the reviewer PAT secret is REVIEWER_GITHUB_TOKEN.
           github_token: ${{ secrets.REVIEWER_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          # Stream the Claude session (tool calls, messages) into the action log
+          # so a long review is observable instead of silent. The action hides
+          # it by default because PR content is untrusted; these are our own
+          # repos, so observability wins.
+          show_full_output: true
           # Model + MCP server are passed through to the Claude CLI via
           # claude_args (the v1 action has no `model` / `mcp_config` inputs).
           # --mcp-config takes the FILE written in the step above.
