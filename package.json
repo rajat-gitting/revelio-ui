@@ -19,7 +19,8 @@
     "pretest": "node scripts/generate-routes.mjs",
     "prebuild": "node scripts/generate-routes.mjs",
     "pretypecheck": "node scripts/generate-routes.mjs",
-    "smoke": "playwright install chromium && playwright test --config=playwright.smoke.config.ts"
+    "smoke": "playwright test --config=playwright.smoke.config.ts",
+    "smoke:install": "playwright install chromium"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.45.0",
