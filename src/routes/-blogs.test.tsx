@@ -7,6 +7,8 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { searchPosts, getBlogFilters, getPosts } from '@/api/services/blogService';
 import type { BlogPostDto, BlogSearchResponse, BlogFiltersDto, PagedResponse } from '@/types/api';
@@ -555,6 +557,102 @@ describe('CR-12: Non-blocking error handling', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('error-banner')).not.toBeInTheDocument();
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CR-29: Static blog cards and background color
+// ---------------------------------------------------------------------------
+describe('CR-29: Static blog cards are always visible on the blogs page', () => {
+  beforeEach(() => {
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3)));
+    vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
+    vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(3)));
+  });
+
+  it('renders a blog card titled "Development in the era of AI" with correct summary and tags', async () => {
+    renderBlogsPage();
+    await waitFor(() => {
+      expect(screen.getByText('Development in the era of AI')).toBeInTheDocument();
+      expect(screen.getByText('How AI tools are reshaping the way developers write, review, and ship code.')).toBeInTheDocument();
+    });
+    const aiCard = screen.getByText('Development in the era of AI').closest('a');
+    expect(aiCard).toBeInTheDocument();
+    expect(aiCard?.textContent).toContain('ai');
+    expect(aiCard?.textContent).toContain('development');
+    expect(aiCard?.textContent).toContain('productivity');
+  });
+
+  it('renders a blog card titled "Mastering Code Reviews" with correct summary and tags', async () => {
+    renderBlogsPage();
+    await waitFor(() => {
+      expect(screen.getByText('Mastering Code Reviews')).toBeInTheDocument();
+      expect(screen.getByText('Best practices for giving and receiving feedback that improves code quality and team culture.')).toBeInTheDocument();
+    });
+    const card = screen.getByText('Mastering Code Reviews').closest('a');
+    expect(card?.textContent).toContain('code-review');
+    expect(card?.textContent).toContain('collaboration');
+    expect(card?.textContent).toContain('best-practices');
+  });
+
+  it('renders a blog card titled "The Rise of Edge Computing" with correct summary and tags', async () => {
+    renderBlogsPage();
+    await waitFor(() => {
+      expect(screen.getByText('The Rise of Edge Computing')).toBeInTheDocument();
+      expect(screen.getByText('Why processing data closer to the user is changing how we build modern applications.')).toBeInTheDocument();
+    });
+    const card = screen.getByText('The Rise of Edge Computing').closest('a');
+    expect(card?.textContent).toContain('edge-computing');
+    expect(card?.textContent).toContain('architecture');
+    expect(card?.textContent).toContain('performance');
+  });
+
+  it('renders a blog card titled "Securing Your CI/CD Pipeline" with correct summary and tags', async () => {
+    renderBlogsPage();
+    await waitFor(() => {
+      expect(screen.getByText('Securing Your CI/CD Pipeline')).toBeInTheDocument();
+      expect(screen.getByText('Practical steps to protect your build and deployment workflows from common vulnerabilities.')).toBeInTheDocument();
+    });
+    const card = screen.getByText('Securing Your CI/CD Pipeline').closest('a');
+    expect(card?.textContent).toContain('security');
+    expect(card?.textContent).toContain('ci-cd');
+    expect(card?.textContent).toContain('devops');
+  });
+
+  it('renders a blog card titled "Writing Documentation Developers Actually Read" with correct summary and tags', async () => {
+    renderBlogsPage();
+    await waitFor(() => {
+      expect(screen.getByText('Writing Documentation Developers Actually Read')).toBeInTheDocument();
+      expect(screen.getByText('Tips for creating clear, concise docs that reduce support tickets and onboarding time.')).toBeInTheDocument();
+    });
+    const card = screen.getByText('Writing Documentation Developers Actually Read').closest('a');
+    expect(card?.textContent).toContain('documentation');
+    expect(card?.textContent).toContain('writing');
+    expect(card?.textContent).toContain('developer-experience');
+  });
+
+  it('renders all five new static cards in the static-cards-grid alongside API-fetched cards', async () => {
+    renderBlogsPage();
+    await waitFor(() => {
+      const staticGrid = screen.getByTestId('static-cards-grid');
+      const cards = staticGrid.querySelectorAll('.blog-card');
+      expect(cards.length).toBe(5);
+    });
+    // API-fetched cards also present
+    await waitFor(() => {
+      expect(screen.getByTestId('results-grid')).toBeInTheDocument();
+    });
+  });
+
+  it('blogs page background color is #1a1f2e (updated, distinct from old theme)', () => {
+    // jsdom does not apply external stylesheets, so we verify the SCSS source directly.
+    // This confirms the color was replaced with a modern professional value.
+    const scssSource = fs.readFileSync(
+      path.resolve(__dirname, './blogs.module.scss'),
+      'utf8'
+    );
+    expect(scssSource).toContain('#1a1f2e');
+    expect(scssSource).not.toContain('background-color: $color-bg');
   });
 });
 

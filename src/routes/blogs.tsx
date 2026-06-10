@@ -9,6 +9,57 @@ import { useDebounce } from '@/hooks/useDebounce';
 import styles from './blogs.module.scss';
 
 // ---------------------------------------------------------------------------
+// CR-29: Static blog cards (hardcoded, always visible alongside API-fetched posts)
+// ---------------------------------------------------------------------------
+const STATIC_BLOG_POSTS: BlogPostDto[] = [
+  {
+    id: -1,
+    title: 'Development in the era of AI',
+    excerpt: 'How AI tools are reshaping the way developers write, review, and ship code.',
+    coverImageUrl: null,
+    author: { name: 'Editorial Team', avatarUrl: null },
+    tags: ['ai', 'development', 'productivity'],
+    publishedAt: '2025-01-01T00:00:00Z',
+  },
+  {
+    id: -2,
+    title: 'Mastering Code Reviews',
+    excerpt: 'Best practices for giving and receiving feedback that improves code quality and team culture.',
+    coverImageUrl: null,
+    author: { name: 'Editorial Team', avatarUrl: null },
+    tags: ['code-review', 'collaboration', 'best-practices'],
+    publishedAt: '2025-01-02T00:00:00Z',
+  },
+  {
+    id: -3,
+    title: 'The Rise of Edge Computing',
+    excerpt: 'Why processing data closer to the user is changing how we build modern applications.',
+    coverImageUrl: null,
+    author: { name: 'Editorial Team', avatarUrl: null },
+    tags: ['edge-computing', 'architecture', 'performance'],
+    publishedAt: '2025-01-03T00:00:00Z',
+  },
+  {
+    id: -4,
+    title: 'Securing Your CI/CD Pipeline',
+    excerpt: 'Practical steps to protect your build and deployment workflows from common vulnerabilities.',
+    coverImageUrl: null,
+    author: { name: 'Editorial Team', avatarUrl: null },
+    tags: ['security', 'ci-cd', 'devops'],
+    publishedAt: '2025-01-04T00:00:00Z',
+  },
+  {
+    id: -5,
+    title: 'Writing Documentation Developers Actually Read',
+    excerpt: 'Tips for creating clear, concise docs that reduce support tickets and onboarding time.',
+    coverImageUrl: null,
+    author: { name: 'Editorial Team', avatarUrl: null },
+    tags: ['documentation', 'writing', 'developer-experience'],
+    publishedAt: '2025-01-05T00:00:00Z',
+  },
+];
+
+// ---------------------------------------------------------------------------
 // Route search-params schema (URL state — CR-11, CR-24)
 // ---------------------------------------------------------------------------
 interface BlogsSearch {
@@ -433,6 +484,11 @@ function BlogsPage() {
           )}
         </>
       )}
+
+      {/* ── CR-29: Static blog cards — always rendered below API results ── */}
+      <div className={styles.grid} data-testid="static-cards-grid">
+        {STATIC_BLOG_POSTS.map((post) => <BlogCard key={post.id} post={post} />)}
+      </div>
     </div>
   );
 }
