@@ -19,6 +19,10 @@ permissions:
 jobs:
   review:
     runs-on: ubuntu-latest
+    # Lifted to job level so the "Notify orchestrator" step's `if` can see it:
+    # neither `secrets` nor a step's own `env` is in scope inside a step `if`.
+    env:
+      INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,14 +69,38 @@ jobs:
             --allowedTools "mcp__atlassian"
           prompt: |
             Review this pull request as a senior engineer.
-            1. Read CLAUDE.md in this repo for the coding standards.
-            2. Find the Jira ticket key in the PR title, body, or branch name
-               (pattern: feature/<TICKET-KEY>). Fetch its acceptance criteria
-               via the atlassian MCP server.
-            3. Verify the diff satisfies EVERY acceptance criterion and follows
-               the standards. Leave specific inline comments.
-            4. Submit your review: approve only if all criteria are met and the
-               standards are followed; otherwise request changes.
+
+            SCOPE — read this first. This ticket may span several repositories;
+            each repo's PR is responsible for ONLY the criteria listed in its
+            own body. The PR body section "Acceptance criteria (this repo)" is
+            the authoritative, complete list of what THIS repository must
+            satisfy. The Jira ticket will mention more criteria — those belong
+            to other repositories (a UI criterion is implemented in the
+            frontend repo, an API criterion in the backend repo). NEVER request
+            changes because a criterion outside this PR's list is "not
+            implemented" here — it is implemented elsewhere.
+
+            1. Read CLAUDE.md in this repo for the coding standards (skip if
+               the file does not exist).
+            2. Read the PR body and take the "Acceptance criteria (this repo)"
+               list as this review's scope.
+            3. For intent and background only: find the Jira ticket key in the
+               PR title, body, or branch name (pattern: feature/<TICKET-KEY>)
+               and fetch the ticket via the atlassian MCP server. Use it to
+               understand the goal — not to expand this PR's scope.
+            4. Verify the diff satisfies EVERY criterion in the PR body's list
+               and follows the standards. When a criterion specifies literal
+               content (titles, copy text, colors, enumerated items), verify it
+               appears EXACTLY as specified. Leave specific inline comments.
+            5. Do NOT invent requirements. Request changes ONLY for a violated
+               criterion from this PR's list, a real defect in the changed
+               code, or a breach of CLAUDE.md standards. Accessibility,
+               performance, styling, or testing demands that no criterion
+               states are out of scope — mention them as optional suggestions
+               at most, never as blocking.
+            6. Submit your review: approve only if all of THIS repo's criteria
+               are met and the standards are followed; otherwise request
+               changes.
 
       # Notify the orchestrator. Inngest exposes a public event-ingest endpoint,
       # so CI can push the verdict without the orchestrator needing a public URL.
@@ -80,7 +108,6 @@ jobs:
       - name: Notify orchestrator
         if: ${{ env.INNGEST_EVENT_KEY != '' }}
         env:
-          INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
           TICKET_KEY: ${{ github.event.pull_request.head.ref }}
         run: |
           curl -sf -X POST \
