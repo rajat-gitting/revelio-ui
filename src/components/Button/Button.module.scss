@@ -63,7 +63,7 @@
 .danger:focus-visible {
   outline: 2px solid $color-error;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(217, 123, 107, 0.3);
+  box-shadow: 0 0 0 4px $color-error-glow;
 }
 
 .danger:active:not(:disabled) {
