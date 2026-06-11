@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
+import { Link } from '@tanstack/react-router';
 import './BlogCard.css';
 
 interface Author {
@@ -55,7 +56,7 @@ function BlogCard({ post }: BlogCardProps): React.JSX.Element {
   const readingTime = getReadingTime(post.excerpt);
 
   return (
-    <a href={`/blog/${post.id}`} className="blog-card" aria-label={`Read ${post.title}`}>
+    <Link to="/blog/$id" params={{ id: String(post.id) }} className="blog-card" aria-label={`Read ${post.title}`}>
       <div className="blog-card__content">
         <h2 className="blog-card__title">{post.title}</h2>
         <p className="blog-card__excerpt">{post.excerpt}</p>
@@ -82,7 +83,7 @@ function BlogCard({ post }: BlogCardProps): React.JSX.Element {
           </time>
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
 

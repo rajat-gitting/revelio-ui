@@ -21,6 +21,7 @@ const post = (id: number) => ({
   author: { name: 'Smoke Author', avatarUrl: null },
   tags: ['smoke'],
   publishedAt: '2026-01-01T00:00:00Z',
+  body: 'This is the full article body for smoke testing. It contains several sentences of topically relevant placeholder prose to verify the detail page renders correctly without crashing.',
 });
 
 const POSTS = [post(1), post(2), post(3)];
@@ -43,6 +44,17 @@ const apiResponse = (data: unknown) => ({
 });
 
 async function stubApi(page: Page): Promise<void> {
+  // GET /api/blogs/:id → ApiResponse<BlogPostDto>
+  await page.route(/\/blogs\/\d+/, (route) => {
+    const url = route.request().url();
+    const id = parseInt(url.split('/blogs/')[1]?.split('?')[0] ?? '1', 10);
+    const found = POSTS.find((p) => p.id === id);
+    if (found) {
+      route.fulfill({ json: apiResponse(found) });
+    } else {
+      route.fulfill({ status: 404, json: { success: false, message: 'Not found' } });
+    }
+  });
   // GET /api/blogs → ApiResponse<PagedResponse<BlogPostDto>>
   await page.route(/\/blogs(\?|$)/, (route) =>
     route.fulfill({ json: apiResponse(paged(POSTS)) }),
@@ -68,7 +80,7 @@ async function stubApi(page: Page): Promise<void> {
   );
 }
 
-const ROUTES = ['/', '/blogs', '/about'];
+const ROUTES = ['/', '/blogs', '/about', '/blog/1'];
 
 for (const path of ROUTES) {
   test(`renders ${path} without crashing`, async ({ page }) => {

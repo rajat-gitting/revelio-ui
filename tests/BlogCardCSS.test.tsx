@@ -14,9 +14,29 @@
 import React from 'react';
 import * as fs from 'fs';
 import * as path from 'path';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router';
 import BlogCard from '../src/components/BlogCard';
 import SkeletonCard from '../src/components/SkeletonCard';
+
+function renderWithRouter(ui: React.ReactElement) {
+  const rootRoute = createRootRoute();
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: () => ui,
+  });
+  const blogDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/blog/$id',
+    component: () => null,
+  });
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([indexRoute, blogDetailRoute]),
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  });
+  return render(<RouterProvider router={router} />);
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -61,6 +81,7 @@ const mockPost = {
   author: { name: 'Jane Smith', avatarUrl: null },
   tags: ['design', 'ux', 'css', 'extra1', 'extra2'],
   publishedAt: '2024-01-15T10:00:00Z',
+  body: '',
 };
 
 // ---------------------------------------------------------------------------
@@ -214,12 +235,14 @@ describe('AC8 – initials fallback primary background and white text', () => {
     expect(initialsBlock).toContain('#ffffff');
   });
 
-  it('BlogCard.tsx renders the initials fallback with class blog-card__avatar-initials when avatarUrl is null', () => {
-    render(<BlogCard post={mockPost} />);
-    const initials = document.querySelector('.blog-card__avatar-initials');
-    expect(initials).not.toBeNull();
-    // Should show "JS" for Jane Smith
-    expect(initials?.textContent).toBe('JS');
+  it('BlogCard.tsx renders the initials fallback with class blog-card__avatar-initials when avatarUrl is null', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      const initials = document.querySelector('.blog-card__avatar-initials');
+      expect(initials).not.toBeNull();
+      // Should show "JS" for Jane Smith
+      expect(initials?.textContent).toBe('JS');
+    });
   });
 });
 
@@ -255,11 +278,13 @@ describe('AC9 – tag pill styles', () => {
     expect(tagHoverBlock).toMatch(/background(-color)?\s*:/);
   });
 
-  it('BlogCard.tsx renders tag spans with class blog-card__tag', () => {
-    render(<BlogCard post={mockPost} />);
-    const tags = document.querySelectorAll('.blog-card__tag');
-    // mockPost has 5 tags but only first 3 are shown
-    expect(tags.length).toBe(3);
+  it('BlogCard.tsx renders tag spans with class blog-card__tag', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      const tags = document.querySelectorAll('.blog-card__tag');
+      // mockPost has 5 tags but only first 3 are shown
+      expect(tags.length).toBe(3);
+    });
   });
 });
 
@@ -282,19 +307,23 @@ describe('AC10 – +N more overflow tag', () => {
     expect(tagMoreBlock).toContain('font-style: italic');
   });
 
-  it('BlogCard.tsx renders the +N more element with class blog-card__tag-more when there are >3 tags', () => {
-    render(<BlogCard post={mockPost} />);
-    const moreTag = document.querySelector('.blog-card__tag-more');
-    expect(moreTag).not.toBeNull();
-    // mockPost has 5 tags → 5 - 3 = 2 extra
-    expect(moreTag?.textContent).toBe('+2 more');
+  it('BlogCard.tsx renders the +N more element with class blog-card__tag-more when there are >3 tags', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      const moreTag = document.querySelector('.blog-card__tag-more');
+      expect(moreTag).not.toBeNull();
+      // mockPost has 5 tags → 5 - 3 = 2 extra
+      expect(moreTag?.textContent).toBe('+2 more');
+    });
   });
 
-  it('BlogCard.tsx does NOT render blog-card__tag-more when tags ≤ 3', () => {
+  it('BlogCard.tsx does NOT render blog-card__tag-more when tags ≤ 3', async () => {
     const postFewTags = { ...mockPost, tags: ['design', 'ux'] };
-    render(<BlogCard post={postFewTags} />);
-    const moreTag = document.querySelector('.blog-card__tag-more');
-    expect(moreTag).toBeNull();
+    renderWithRouter(<BlogCard post={postFewTags} />);
+    await waitFor(() => {
+      const moreTag = document.querySelector('.blog-card__tag-more');
+      expect(moreTag).toBeNull();
+    });
   });
 });
 
@@ -361,46 +390,60 @@ describe('AC13 – WCAG 2.1 AA contrast for key colour pairs', () => {
 // Additional DOM structure checks (support multiple ACs)
 // ---------------------------------------------------------------------------
 describe('DOM structure – class names emitted by BlogCard', () => {
-  it('renders the root <a> element with class blog-card', () => {
-    render(<BlogCard post={mockPost} />);
-    const card = document.querySelector('a.blog-card');
-    expect(card).not.toBeNull();
+  it('renders the root <a> element with class blog-card', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      const card = document.querySelector('a.blog-card');
+      expect(card).not.toBeNull();
+    });
   });
 
-  it('the root element is an <a> linking to /blog/{id}', () => {
-    render(<BlogCard post={mockPost} />);
-    const link = document.querySelector('a.blog-card') as HTMLAnchorElement | null;
-    expect(link).not.toBeNull();
-    expect(link?.getAttribute('href')).toBe('/blog/42');
+  it('the root element is an <a> linking to /blog/{id}', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      const link = document.querySelector('a.blog-card') as HTMLAnchorElement | null;
+      expect(link).not.toBeNull();
+      expect(link?.getAttribute('href')).toBe('/blog/42');
+    });
   });
 
-  it('renders .blog-card__content inside .blog-card', () => {
-    render(<BlogCard post={mockPost} />);
-    expect(document.querySelector('.blog-card .blog-card__content')).not.toBeNull();
+  it('renders .blog-card__content inside .blog-card', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      expect(document.querySelector('.blog-card .blog-card__content')).not.toBeNull();
+    });
   });
 
-  it('renders .blog-card__excerpt with class for separator styling', () => {
-    render(<BlogCard post={mockPost} />);
-    expect(document.querySelector('.blog-card__excerpt')).not.toBeNull();
+  it('renders .blog-card__excerpt with class for separator styling', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      expect(document.querySelector('.blog-card__excerpt')).not.toBeNull();
+    });
   });
 
-  it('renders .blog-card__meta after .blog-card__excerpt', () => {
-    render(<BlogCard post={mockPost} />);
-    expect(document.querySelector('.blog-card__meta')).not.toBeNull();
+  it('renders .blog-card__meta after .blog-card__excerpt', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      expect(document.querySelector('.blog-card__meta')).not.toBeNull();
+    });
   });
 
-  it('renders .blog-card__reading-time inside .blog-card__meta', () => {
-    render(<BlogCard post={mockPost} />);
-    const meta = document.querySelector('.blog-card__meta');
-    expect(meta?.querySelector('.blog-card__reading-time')).not.toBeNull();
+  it('renders .blog-card__reading-time inside .blog-card__meta', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      const meta = document.querySelector('.blog-card__meta');
+      expect(meta?.querySelector('.blog-card__reading-time')).not.toBeNull();
+    });
   });
 
-  it('renders an <img> avatar with class blog-card__avatar when avatarUrl is provided', () => {
+  it('renders an <img> avatar with class blog-card__avatar when avatarUrl is provided', async () => {
     const postWithAvatar = { ...mockPost, author: { name: 'Jane Smith', avatarUrl: 'https://example.com/jane.png' } };
-    render(<BlogCard post={postWithAvatar} />);
-    const img = document.querySelector('img.blog-card__avatar') as HTMLImageElement | null;
-    expect(img).not.toBeNull();
-    expect(img?.getAttribute('src')).toBe('https://example.com/jane.png');
+    renderWithRouter(<BlogCard post={postWithAvatar} />);
+    await waitFor(() => {
+      const img = document.querySelector('img.blog-card__avatar') as HTMLImageElement | null;
+      expect(img).not.toBeNull();
+      expect(img?.getAttribute('src')).toBe('https://example.com/jane.png');
+    });
   });
 });
 

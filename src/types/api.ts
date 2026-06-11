@@ -31,6 +31,7 @@ export interface BlogPostDto {
   author: BlogAuthorDto;
   tags: string[];
   publishedAt: string;
+  body: string;
 }
 
 export interface BlogListDto {

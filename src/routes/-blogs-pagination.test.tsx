@@ -49,6 +49,7 @@ const makePosts = (count: number, startId = 1): BlogPostDto[] =>
     author: { name: 'Alice', avatarUrl: null },
     tags: ['tag'],
     publishedAt: '2024-01-01T00:00:00Z',
+    body: '',
   }));
 
 const makePagedResponse = (

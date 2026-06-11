@@ -1,6 +1,26 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router';
 import BlogCard, { getReadingTime } from '../src/components/BlogCard';
+
+function renderWithRouter(ui: React.ReactElement) {
+  const rootRoute = createRootRoute();
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: () => ui,
+  });
+  const blogDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/blog/$id',
+    component: () => null,
+  });
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([indexRoute, blogDetailRoute]),
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  });
+  return render(<RouterProvider router={router} />);
+}
 
 const mockPost = {
   id: 1,
@@ -12,7 +32,8 @@ const mockPost = {
     avatarUrl: 'https://example.com/avatar.jpg'
   },
   tags: ['test', 'example'],
-  publishedAt: '2023-01-01T00:00:00Z'
+  publishedAt: '2023-01-01T00:00:00Z',
+  body: '',
 };
 
 const mockPostWithoutImage = {
@@ -21,21 +42,27 @@ const mockPostWithoutImage = {
 };
 
 describe('BlogCard', () => {
-  it('does not render image container when coverImageUrl is present', () => {
-    render(<BlogCard post={mockPost} />);
-    const imageContainer = screen.queryByTestId('image-container');
-    expect(imageContainer).not.toBeInTheDocument();
+  it('does not render image container when coverImageUrl is present', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      const imageContainer = screen.queryByTestId('image-container');
+      expect(imageContainer).not.toBeInTheDocument();
+    });
   });
 
-  it('does not render image container when coverImageUrl is null', () => {
-    render(<BlogCard post={mockPostWithoutImage} />);
-    const imageContainer = screen.queryByTestId('image-container');
-    expect(imageContainer).not.toBeInTheDocument();
+  it('does not render image container when coverImageUrl is null', async () => {
+    renderWithRouter(<BlogCard post={mockPostWithoutImage} />);
+    await waitFor(() => {
+      const imageContainer = screen.queryByTestId('image-container');
+      expect(imageContainer).not.toBeInTheDocument();
+    });
   });
 
-  it('renders all content elements without image container', () => {
-    render(<BlogCard post={mockPost} />);
-    expect(screen.getByText('Test Post')).toBeInTheDocument();
+  it('renders all content elements without image container', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      expect(screen.getByText('Test Post')).toBeInTheDocument();
+    });
     expect(screen.getByText('This is a test post excerpt')).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('test')).toBeInTheDocument();
@@ -65,21 +92,27 @@ describe('getReadingTime', () => {
 });
 
 describe('BlogCard reading time display', () => {
-  it('displays "1 min read" for an excerpt of exactly 200 words', () => {
+  it('displays "1 min read" for an excerpt of exactly 200 words', async () => {
     const post = { ...mockPost, excerpt: buildExcerpt(200) };
-    render(<BlogCard post={post} />);
-    expect(screen.getByText('1 min read')).toBeInTheDocument();
+    renderWithRouter(<BlogCard post={post} />);
+    await waitFor(() => {
+      expect(screen.getByText('1 min read')).toBeInTheDocument();
+    });
   });
 
-  it('displays "2 min read" for an excerpt of 201 words', () => {
+  it('displays "2 min read" for an excerpt of 201 words', async () => {
     const post = { ...mockPost, excerpt: buildExcerpt(201) };
-    render(<BlogCard post={post} />);
-    expect(screen.getByText('2 min read')).toBeInTheDocument();
+    renderWithRouter(<BlogCard post={post} />);
+    await waitFor(() => {
+      expect(screen.getByText('2 min read')).toBeInTheDocument();
+    });
   });
 
-  it('displays "1 min read" for an empty excerpt', () => {
+  it('displays "1 min read" for an empty excerpt', async () => {
     const post = { ...mockPost, excerpt: '' };
-    render(<BlogCard post={post} />);
-    expect(screen.getByText('1 min read')).toBeInTheDocument();
+    renderWithRouter(<BlogCard post={post} />);
+    await waitFor(() => {
+      expect(screen.getByText('1 min read')).toBeInTheDocument();
+    });
   });
 });
