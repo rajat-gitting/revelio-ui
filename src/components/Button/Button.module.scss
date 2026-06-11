@@ -4,7 +4,7 @@
 .primary {
   @include m.button-base;
   background-color: $color-primary;
-  color: #fff;
+  color: $color-text-on-primary;
   border-color: $color-primary;
 }
 
@@ -13,27 +13,62 @@
   border-color: $color-primary-hover;
 }
 
+.primary:focus-visible {
+  outline: 2px solid $color-border-focus;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px $color-focus-glow;
+}
+
+.primary:active:not(:disabled) {
+  background-color: $color-primary-dark;
+  border-color: $color-primary-dark;
+}
+
 .secondary {
   @include m.button-base;
   background-color: transparent;
   color: $color-text;
-  border-color: $color-border;
+  border-color: $color-border-light;
 }
 
 .secondary:hover:not(:disabled) {
   border-color: $color-text-muted;
-  color: #fff;
+  color: $color-text;
+  background-color: $color-surface-hover;
+}
+
+.secondary:focus-visible {
+  outline: 2px solid $color-border-focus;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px $color-focus-glow;
+}
+
+.secondary:active:not(:disabled) {
+  background-color: $color-surface-elevated;
+  border-color: $color-border-light;
 }
 
 .danger {
   @include m.button-base;
-  background-color: color-mix(in oklab, $color-error 85%, #450a0a);
-  color: #fff;
+  background-color: $color-error-dark;
+  color: $color-text-on-primary;
   border-color: $color-error;
 }
 
 .danger:hover:not(:disabled) {
-  filter: brightness(1.05);
+  background-color: $color-error;
+  border-color: $color-error;
+}
+
+.danger:focus-visible {
+  outline: 2px solid $color-error;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(217, 123, 107, 0.3);
+}
+
+.danger:active:not(:disabled) {
+  background-color: $color-error-dark;
+  filter: brightness(0.9);
 }
 
 .primary:disabled,

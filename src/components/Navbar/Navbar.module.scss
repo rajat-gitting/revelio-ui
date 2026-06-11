@@ -26,7 +26,7 @@
 .link:hover {
   color: $color-text-secondary;
   border-color: $color-border-light;
-  background-color: rgb(255 255 255 / 6%);
+  background-color: var(--color-surface-hover);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -39,7 +39,7 @@
 .active {
   color: $color-text;
   border-color: $color-primary;
-  background-color: rgb(37 99 235 / 20%);
+  background-color: var(--color-primary-subtle);
   font-weight: $font-weight-semibold;
 }
 

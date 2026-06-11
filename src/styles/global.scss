@@ -1,12 +1,16 @@
 @use 'reset';
 @use 'variables' as v;
 
+// ============================================================================
+// DARK MODE (baseline — default)
+// ============================================================================
 :root {
   // Primary colors
   --color-primary: #{v.$color-primary};
   --color-primary-hover: #{v.$color-primary-hover};
   --color-primary-light: #{v.$color-primary-light};
   --color-primary-dark: #{v.$color-primary-dark};
+  --color-primary-subtle: #{v.$color-primary-subtle};
 
   // Secondary colors
   --color-secondary: #{v.$color-secondary};
@@ -25,12 +29,14 @@
   --color-bg-secondary: #{v.$color-bg-secondary};
   --color-surface: #{v.$color-surface};
   --color-surface-elevated: #{v.$color-surface-elevated};
+  --color-surface-hover: #{v.$color-surface-hover};
 
   // Text colors
   --color-text: #{v.$color-text};
   --color-text-secondary: #{v.$color-text-secondary};
   --color-text-muted: #{v.$color-text-muted};
   --color-text-disabled: #{v.$color-text-disabled};
+  --color-text-on-primary: #{v.$color-text-on-primary};
 
   // Border colors
   --color-border: #{v.$color-border};
@@ -47,11 +53,205 @@
   --color-info: #{v.$color-info};
   --color-info-dark: #{v.$color-info-dark};
 
+  // Overlay tokens
+  --color-overlay-dark: #{v.$color-overlay-dark};
+  --color-overlay-hover: #{v.$color-overlay-hover};
+  --color-focus-glow: #{v.$color-focus-glow};
+
   // Typography
   --font-family-base: #{v.$font-family-base};
   --font-family-heading: #{v.$font-family-heading};
   --font-family-mono: #{v.$font-family-mono};
   --font-size-base: #{v.$font-size-base};
+
+  // Spacing (exposed for CSS consumers)
+  --space-xs: #{v.$space-xs};
+  --space-sm: #{v.$space-sm};
+  --space-md: #{v.$space-md};
+  --space-lg: #{v.$space-lg};
+  --space-xl: #{v.$space-xl};
+  --space-2xl: #{v.$space-2xl};
+
+  // Radii
+  --radius-sm: #{v.$radius-sm};
+  --radius-md: #{v.$radius-md};
+  --radius-lg: #{v.$radius-lg};
+  --radius-full: #{v.$radius-full};
+
+  // Shadows
+  --shadow-sm: #{v.$shadow-sm};
+  --shadow-md: #{v.$shadow-md};
+  --shadow-lg: #{v.$shadow-lg};
+
+  // Font sizes
+  --font-size-xs: #{v.$font-size-xs};
+  --font-size-sm: #{v.$font-size-sm};
+  --font-size-lg: #{v.$font-size-lg};
+  --font-size-xl: #{v.$font-size-xl};
+  --font-size-2xl: #{v.$font-size-2xl};
+  --font-size-3xl: #{v.$font-size-3xl};
+  --font-size-4xl: #{v.$font-size-4xl};
+  --font-size-5xl: #{v.$font-size-5xl};
+
+  // Font weights
+  --font-weight-light: #{v.$font-weight-light};
+  --font-weight-normal: #{v.$font-weight-normal};
+  --font-weight-medium: #{v.$font-weight-medium};
+  --font-weight-semibold: #{v.$font-weight-semibold};
+  --font-weight-bold: #{v.$font-weight-bold};
+  --font-weight-extrabold: #{v.$font-weight-extrabold};
+}
+
+// ============================================================================
+// LIGHT MODE OVERRIDE
+// ============================================================================
+@media (prefers-color-scheme: light) {
+  :root {
+    // Primary (same teal, works on light too — slightly darker shade for contrast)
+    --color-primary: #246b5e;
+    --color-primary-hover: #1a5049;
+    --color-primary-light: #2a7d6f;
+    --color-primary-dark: #103d35;
+    --color-primary-subtle: rgba(36, 107, 94, 0.12);
+
+    // Secondary
+    --color-secondary: #7a6b5f;
+    --color-secondary-hover: #6b5c51;
+    --color-secondary-light: #8c7b6e;
+    --color-secondary-dark: #5a4d43;
+
+    // Accent
+    --color-accent: #9a7a4a;
+    --color-accent-hover: #7d6034;
+    --color-accent-light: #b08d5b;
+    --color-accent-dark: #5c4420;
+
+    // Backgrounds — warm off-white, light cream surfaces
+    --color-bg: #f5f2ed;
+    --color-bg-secondary: #ede9e3;
+    --color-surface: #faf8f5;
+    --color-surface-elevated: #ffffff;
+    --color-surface-hover: rgba(0, 0, 0, 0.04);
+
+    // Text — deep charcoal hierarchy
+    --color-text: #1c1a17;
+    --color-text-secondary: #3a3530;
+    --color-text-muted: #6b6360;
+    --color-text-disabled: #a09a96;
+    --color-text-on-primary: #ffffff;
+
+    // Borders
+    --color-border: #d8d2c8;
+    --color-border-light: #c8c0b5;
+    --color-border-focus: #246b5e;
+
+    // Semantic (slightly more vivid on light bg for contrast)
+    --color-error: #b84040;
+    --color-error-dark: #8c2c2c;
+    --color-warning: #7a5210;
+    --color-warning-dark: #5e3e08;
+    --color-success: #2e7a58;
+    --color-success-dark: #1e5c3e;
+    --color-info: #2e6a90;
+    --color-info-dark: #1e4e6e;
+
+    // Overlays
+    --color-overlay-dark: rgba(0, 0, 0, 0.35);
+    --color-overlay-hover: rgba(0, 0, 0, 0.25);
+    --color-focus-glow: rgba(36, 107, 94, 0.25);
+
+    // Shadows — lighter on bright surfaces
+    --shadow-sm: 0 1px 3px rgb(0 0 0 / 12%);
+    --shadow-md: 0 4px 16px rgb(0 0 0 / 14%);
+    --shadow-lg: 0 12px 32px rgb(0 0 0 / 18%);
+  }
+}
+
+// [data-theme] attribute toggle — supplements prefers-color-scheme
+[data-theme='dark'] {
+  --color-primary: #{v.$color-primary};
+  --color-primary-hover: #{v.$color-primary-hover};
+  --color-primary-light: #{v.$color-primary-light};
+  --color-primary-dark: #{v.$color-primary-dark};
+  --color-primary-subtle: #{v.$color-primary-subtle};
+  --color-secondary: #{v.$color-secondary};
+  --color-secondary-hover: #{v.$color-secondary-hover};
+  --color-secondary-light: #{v.$color-secondary-light};
+  --color-secondary-dark: #{v.$color-secondary-dark};
+  --color-accent: #{v.$color-accent};
+  --color-accent-hover: #{v.$color-accent-hover};
+  --color-accent-light: #{v.$color-accent-light};
+  --color-accent-dark: #{v.$color-accent-dark};
+  --color-bg: #{v.$color-bg};
+  --color-bg-secondary: #{v.$color-bg-secondary};
+  --color-surface: #{v.$color-surface};
+  --color-surface-elevated: #{v.$color-surface-elevated};
+  --color-surface-hover: #{v.$color-surface-hover};
+  --color-text: #{v.$color-text};
+  --color-text-secondary: #{v.$color-text-secondary};
+  --color-text-muted: #{v.$color-text-muted};
+  --color-text-disabled: #{v.$color-text-disabled};
+  --color-text-on-primary: #{v.$color-text-on-primary};
+  --color-border: #{v.$color-border};
+  --color-border-light: #{v.$color-border-light};
+  --color-border-focus: #{v.$color-border-focus};
+  --color-error: #{v.$color-error};
+  --color-error-dark: #{v.$color-error-dark};
+  --color-warning: #{v.$color-warning};
+  --color-warning-dark: #{v.$color-warning-dark};
+  --color-success: #{v.$color-success};
+  --color-success-dark: #{v.$color-success-dark};
+  --color-info: #{v.$color-info};
+  --color-info-dark: #{v.$color-info-dark};
+  --color-overlay-dark: #{v.$color-overlay-dark};
+  --color-overlay-hover: #{v.$color-overlay-hover};
+  --color-focus-glow: #{v.$color-focus-glow};
+  --shadow-sm: #{v.$shadow-sm};
+  --shadow-md: #{v.$shadow-md};
+  --shadow-lg: #{v.$shadow-lg};
+}
+
+[data-theme='light'] {
+  --color-primary: #246b5e;
+  --color-primary-hover: #1a5049;
+  --color-primary-light: #2a7d6f;
+  --color-primary-dark: #103d35;
+  --color-primary-subtle: rgba(36, 107, 94, 0.12);
+  --color-secondary: #7a6b5f;
+  --color-secondary-hover: #6b5c51;
+  --color-secondary-light: #8c7b6e;
+  --color-secondary-dark: #5a4d43;
+  --color-accent: #9a7a4a;
+  --color-accent-hover: #7d6034;
+  --color-accent-light: #b08d5b;
+  --color-accent-dark: #5c4420;
+  --color-bg: #f5f2ed;
+  --color-bg-secondary: #ede9e3;
+  --color-surface: #faf8f5;
+  --color-surface-elevated: #ffffff;
+  --color-surface-hover: rgba(0, 0, 0, 0.04);
+  --color-text: #1c1a17;
+  --color-text-secondary: #3a3530;
+  --color-text-muted: #6b6360;
+  --color-text-disabled: #a09a96;
+  --color-text-on-primary: #ffffff;
+  --color-border: #d8d2c8;
+  --color-border-light: #c8c0b5;
+  --color-border-focus: #246b5e;
+  --color-error: #b84040;
+  --color-error-dark: #8c2c2c;
+  --color-warning: #7a5210;
+  --color-warning-dark: #5e3e08;
+  --color-success: #2e7a58;
+  --color-success-dark: #1e5c3e;
+  --color-info: #2e6a90;
+  --color-info-dark: #1e4e6e;
+  --color-overlay-dark: rgba(0, 0, 0, 0.35);
+  --color-overlay-hover: rgba(0, 0, 0, 0.25);
+  --color-focus-glow: rgba(36, 107, 94, 0.25);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 12%);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 14%);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 18%);
 }
 
 body {

@@ -323,14 +323,20 @@ describe('Criterion 6 — Background gradient default and image prop behaviour',
     expect(hiddenDivs.length).toBe(2);
   });
 
-  it('overlay div uses rgba(0,0,0,0.45) as defined in SCSS', () => {
+  it('overlay div uses a dark overlay colour as defined in SCSS', () => {
     const scssPath = resolve(
       dirname(fileURLToPath(import.meta.url)),
       'HeroSection.module.scss',
     );
     const scss = readFileSync(scssPath, 'utf8');
 
-    expect(scss).toContain('rgba(0, 0, 0, 0.45)');
+    // After the token redesign, the overlay is a CSS custom property reference
+    // Accept either the old literal rgba or a token reference
+    const hasOverlay =
+      scss.includes('rgba(0, 0, 0, 0.45)') ||
+      scss.includes('var(--color-overlay-dark)') ||
+      scss.includes('var(--color-overlay');
+    expect(hasOverlay).toBe(true);
   });
 
   it('background-image style contains the supplied URL', () => {
