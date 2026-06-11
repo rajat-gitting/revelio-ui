@@ -106,6 +106,14 @@ jobs:
                performance, styling, or testing demands that no criterion
                states are out of scope — mention them as optional suggestions
                at most, never as blocking.
+            5b. Do NOT assert root causes you have not verified. You cannot
+               run the tests or the app, so if the PR reports a failing gate,
+               flag THAT the gate is red and block on it — but never diagnose
+               WHY it fails from static reading alone, and never demand a
+               specific fix based on such a guess. A confident wrong diagnosis
+               sends the dev agent off implementing an unnecessary change.
+               Say "the test gate is red; fix it" and, at most, offer
+               possibilities clearly labeled as unverified.
             6. Submit your review: approve only if all of THIS repo's criteria
                are met and the standards are followed; otherwise request
                changes.
