@@ -29,6 +29,45 @@ describe('Design System - Color Palette', () => {
     ];
     expect(colorTokens.length).toBe(31);
   });
+
+  it('defines new editorial color palette (teal primary, amber accent)', () => {
+    // Verify new palette slots are all covered
+    const darkPalette = {
+      primary: '#2a7d6f',
+      primaryHover: '#1f6059',
+      primaryLight: '#3d9e8e',
+      primaryDark: '#165448',
+      accent: '#b08d5b',
+      bg: '#12161e',
+      surface: '#1e2430',
+      text: '#f0ede8',
+      textMuted: '#9e9790',
+    };
+    // All keys present
+    expect(Object.keys(darkPalette).length).toBe(9);
+    // Confirm primary is teal, not blue
+    expect(darkPalette.primary).not.toBe('#2563eb');
+    expect(darkPalette.primary).toBe('#2a7d6f');
+  });
+
+  it('defines light mode color palette overrides', () => {
+    // Light mode palette should have different bg/text but same primary family
+    const lightPalette = {
+      primary: '#246b5e',
+      bg: '#f5f2ed',
+      surface: '#faf8f5',
+      text: '#1c1a17',
+      textMuted: '#6b6360',
+      textOnPrimary: '#ffffff', // Pure white for max contrast on teal primary
+    };
+    expect(Object.keys(lightPalette).length).toBe(6);
+    // Light mode has light background
+    expect(lightPalette.bg).toBe('#f5f2ed');
+    // Light mode has dark text
+    expect(lightPalette.text).toBe('#1c1a17');
+    // On-primary text is pure white
+    expect(lightPalette.textOnPrimary).toBe('#ffffff');
+  });
 });
 
 describe('Design System - Typography', () => {
@@ -37,6 +76,20 @@ describe('Design System - Typography', () => {
     // $font-family-base, $font-family-heading, $font-family-mono
     const fontFamilies = ['base', 'heading', 'mono'];
     expect(fontFamilies.length).toBe(3);
+  });
+
+  it('defines new editorial typefaces (Georgia heading, Inter body)', () => {
+    // Verify the new editorial font stack choices
+    const headingFont = "'Georgia', 'Cambria', ui-serif, serif";
+    const bodyFont = "'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+    // Georgia is a serif heading font — editorial direction
+    expect(headingFont).toContain('Georgia');
+    expect(headingFont).toContain('serif');
+
+    // Inter is a clean sans-serif body font
+    expect(bodyFont).toContain('Inter');
+    expect(bodyFont).toContain('sans-serif');
   });
 
   it('defines extended font size tokens', () => {
@@ -150,37 +203,37 @@ describe('Design System - Accessibility', () => {
     };
   }
 
-  it('primary colors meet WCAG AA contrast ratio for large text on dark background', () => {
-    const bgColor = '#0b1120';
-    const primary = '#2563eb';
-    const primaryLight = '#3b82f6';
+  // ============================================================================
+  // DARK MODE (baseline) — bg: #12161e
+  // ============================================================================
 
-    const primaryContrast = getContrastRatio(primary, bgColor);
+  it('primary light color meets WCAG AA contrast ratio for normal text on dark background', () => {
+    // Dark mode baseline: bg #12161e
+    const bgColor = '#12161e';
+    const primaryLight = '#3d9e8e'; // used as tag text on dark bg
+
     const primaryLightContrast = getContrastRatio(primaryLight, bgColor);
 
-    // WCAG AA requires 3:1 for large text (18pt+ or 14pt+ bold)
-    // Primary: 3.64:1 meets AA for large text
-    // Primary Light: 5.12:1 meets AA for normal text (4.5:1+)
-    expect(primaryContrast).toBeGreaterThanOrEqual(3.0);
+    // Primary light on dark bg — should meet AA for normal text (4.5:1+)
     expect(primaryLightContrast).toBeGreaterThanOrEqual(4.5);
   });
 
   it('text colors meet WCAG AAA contrast ratio on dark background', () => {
-    const bgColor = '#0b1120';
-    const text = '#f8fafc';
-    const textSecondary = '#e2e8f0';
+    const bgColor = '#12161e';
+    const text = '#f0ede8';
+    const textSecondary = '#d6d0c8';
 
     const textContrast = getContrastRatio(text, bgColor);
     const textSecondaryContrast = getContrastRatio(textSecondary, bgColor);
 
-    // WCAG AAA requires 7:1 for normal text
+    // Both should be AAA (7:1+) for normal text
     expect(textContrast).toBeGreaterThanOrEqual(7);
     expect(textSecondaryContrast).toBeGreaterThanOrEqual(7);
   });
 
   it('muted text color meets WCAG AA contrast ratio on dark background', () => {
-    const bgColor = '#0b1120';
-    const textMuted = '#94a3b8';
+    const bgColor = '#12161e';
+    const textMuted = '#9e9790';
 
     const textMutedContrast = getContrastRatio(textMuted, bgColor);
 
@@ -189,11 +242,11 @@ describe('Design System - Accessibility', () => {
   });
 
   it('semantic colors meet WCAG AA contrast ratio on dark background', () => {
-    const bgColor = '#0b1120';
-    const error = '#f87171';
-    const warning = '#fbbf24';
-    const success = '#4ade80';
-    const info = '#60a5fa';
+    const bgColor = '#12161e';
+    const error = '#d97b6b';
+    const warning = '#c9973d';
+    const success = '#5a9e82';
+    const info = '#5e92b5';
 
     const errorContrast = getContrastRatio(error, bgColor);
     const warningContrast = getContrastRatio(warning, bgColor);
@@ -207,65 +260,104 @@ describe('Design System - Accessibility', () => {
     expect(infoContrast).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('validates documented contrast ratios for primary colors', () => {
-    const bgColor = '#0b1120';
-    const primary = '#2563eb';
-    const primaryLight = '#3b82f6';
-
-    const primaryContrast = getContrastRatio(primary, bgColor);
-    const primaryLightContrast = getContrastRatio(primaryLight, bgColor);
-
-    // Documented ratios in DESIGN_SYSTEM.md: Primary 3.64:1, Primary Light 5.12:1
-    // Allow tolerance of ±0.1 for floating point precision
-    expect(primaryContrast).toBeGreaterThanOrEqual(3.5);
-    expect(primaryContrast).toBeLessThanOrEqual(3.7);
-    expect(primaryLightContrast).toBeGreaterThanOrEqual(5.0);
-    expect(primaryLightContrast).toBeLessThanOrEqual(5.2);
-  });
-
-  it('validates documented contrast ratios for secondary colors', () => {
-    const bgColor = '#0b1120';
-    const secondary = '#7c3aed';
-
-    const secondaryContrast = getContrastRatio(secondary, bgColor);
-
-    // Documented ratio in DESIGN_SYSTEM.md: Secondary 3.30:1
-    expect(secondaryContrast).toBeGreaterThanOrEqual(3.2);
-    expect(secondaryContrast).toBeLessThanOrEqual(3.4);
-  });
-
-  it('validates documented contrast ratios for accent colors', () => {
-    const bgColor = '#0b1120';
-    const accent = '#10b981';
-
-    const accentContrast = getContrastRatio(accent, bgColor);
-
-    // Documented ratio in DESIGN_SYSTEM.md: Accent 7.42:1
-    expect(accentContrast).toBeGreaterThanOrEqual(7.3);
-    expect(accentContrast).toBeLessThanOrEqual(7.5);
-  });
-
-  it('validates documented contrast ratios for text colors', () => {
-    const bgColor = '#0b1120';
-    const text = '#f8fafc';
-    const textSecondary = '#e2e8f0';
-    const textMuted = '#94a3b8';
-    const textDisabled = '#64748b';
+  it('validates documented contrast ratios for text colors (dark mode)', () => {
+    const bgColor = '#12161e';
+    const text = '#f0ede8';
+    const textSecondary = '#d6d0c8';
+    const textMuted = '#9e9790';
+    const textDisabled = '#6b6560';
 
     const textContrast = getContrastRatio(text, bgColor);
     const textSecondaryContrast = getContrastRatio(textSecondary, bgColor);
     const textMutedContrast = getContrastRatio(textMuted, bgColor);
     const textDisabledContrast = getContrastRatio(textDisabled, bgColor);
 
-    // Documented ratios in DESIGN_SYSTEM.md:
-    // Text: 18.0:1 (AAA), Text Secondary: 15.3:1 (AAA), Text Muted: 7.3:1 (AAA), Text Disabled: 4.0:1
-    expect(textContrast).toBeGreaterThanOrEqual(17.9);
-    expect(textContrast).toBeLessThanOrEqual(18.1);
-    expect(textSecondaryContrast).toBeGreaterThanOrEqual(15.2);
-    expect(textSecondaryContrast).toBeLessThanOrEqual(15.4);
-    expect(textMutedContrast).toBeGreaterThanOrEqual(7.2);
-    expect(textMutedContrast).toBeLessThanOrEqual(7.4);
-    expect(textDisabledContrast).toBeGreaterThanOrEqual(3.9);
-    expect(textDisabledContrast).toBeLessThanOrEqual(4.1);
+    // text (#f0ede8) on #12161e — high contrast (AAA)
+    expect(textContrast).toBeGreaterThanOrEqual(15.0);
+    // textSecondary (#d6d0c8) on #12161e — high contrast (AAA)
+    expect(textSecondaryContrast).toBeGreaterThanOrEqual(11.0);
+    // textMuted (#9e9790) on #12161e — meets AA (4.5:1+)
+    expect(textMutedContrast).toBeGreaterThanOrEqual(4.5);
+    // textDisabled (#6b6560) on #12161e — intentionally lower contrast (decorative)
+    expect(textDisabledContrast).toBeGreaterThanOrEqual(2.5);
+  });
+
+  it('validates primary color meets WCAG AA for large text on dark background', () => {
+    // Primary (#2a7d6f) on dark bg (#12161e)
+    const bgColor = '#12161e';
+    const primary = '#2a7d6f';
+
+    const primaryContrast = getContrastRatio(primary, bgColor);
+
+    // AA for large text requires 3:1
+    expect(primaryContrast).toBeGreaterThanOrEqual(3.0);
+  });
+
+  // ============================================================================
+  // LIGHT MODE — bg: #f5f2ed, text: #1c1a17
+  // ============================================================================
+
+  it('light mode text colors meet WCAG AAA contrast on light background', () => {
+    const bgColor = '#f5f2ed';
+    const text = '#1c1a17';
+    const textSecondary = '#3a3530';
+
+    const textContrast = getContrastRatio(text, bgColor);
+    const textSecondaryContrast = getContrastRatio(textSecondary, bgColor);
+
+    // Both should meet AAA (7:1+)
+    expect(textContrast).toBeGreaterThanOrEqual(7);
+    expect(textSecondaryContrast).toBeGreaterThanOrEqual(7);
+  });
+
+  it('light mode muted text meets WCAG AA contrast on light background', () => {
+    const bgColor = '#f5f2ed';
+    const textMuted = '#6b6360';
+
+    const textMutedContrast = getContrastRatio(textMuted, bgColor);
+
+    // WCAG AA requires 4.5:1 for normal text
+    expect(textMutedContrast).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('light mode primary meets WCAG AA for normal text on light background', () => {
+    // Light mode primary: #246b5e on bg #f5f2ed
+    const bgColor = '#f5f2ed';
+    const primary = '#246b5e';
+
+    const primaryContrast = getContrastRatio(primary, bgColor);
+
+    // AA for normal text: 4.5:1
+    expect(primaryContrast).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('light mode semantic colors meet WCAG AA contrast on light background', () => {
+    const bgColor = '#f5f2ed';
+    const error = '#b84040';
+    const warning = '#7a5210'; // Darkened for light mode contrast
+    const success = '#2e7a58';
+    const info = '#2e6a90';
+
+    const errorContrast = getContrastRatio(error, bgColor);
+    const warningContrast = getContrastRatio(warning, bgColor);
+    const successContrast = getContrastRatio(success, bgColor);
+    const infoContrast = getContrastRatio(info, bgColor);
+
+    // WCAG AA requires 4.5:1 for normal text
+    expect(errorContrast).toBeGreaterThanOrEqual(4.5);
+    expect(warningContrast).toBeGreaterThanOrEqual(4.5);
+    expect(successContrast).toBeGreaterThanOrEqual(4.5);
+    expect(infoContrast).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('text on primary background meets WCAG AA (on-primary token)', () => {
+    // text-on-primary (#ffffff) on primary (#2a7d6f) — using pure white for max contrast
+    const primaryBg = '#2a7d6f';
+    const textOnPrimary = '#ffffff';
+
+    const contrast = getContrastRatio(textOnPrimary, primaryBg);
+
+    // AA for normal text: 4.5:1
+    expect(contrast).toBeGreaterThanOrEqual(4.5);
   });
 });

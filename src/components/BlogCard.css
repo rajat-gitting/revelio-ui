@@ -1,27 +1,21 @@
-/* Primary colour token — matches $color-primary: #2563eb in _variables.scss */
-:root {
-  --blog-card-primary: #2563eb;
-  --blog-card-primary-rgb: 37, 99, 235;
-}
-
 .blog-card {
   display: block;
   text-decoration: none;
   color: inherit;
-  border: 1px solid #e0e0e0;
-  border-top: 4px solid var(--blog-card-primary, #2563eb);
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--color-primary);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   /* AC1: resting box-shadow present at all times */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-sm);
   /* AC2: transitions ≤ 200 ms */
   transition: box-shadow 0.2s ease, transform 0.2s ease;
-  background-color: #ffffff;
+  background-color: var(--color-surface);
 }
 
 /* AC2: hover shadow and upward translate */
 .blog-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -40,7 +34,7 @@
 .blog-card__image-placeholder {
   width: 100%;
   height: 100%;
-  background-color: #f5f5f5;
+  background-color: var(--color-surface-elevated);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,7 +43,7 @@
 .blog-card__logo {
   font-size: 24px;
   font-weight: 600;
-  color: #9e9e9e;
+  color: var(--color-text-muted);
 }
 
 /* AC6: padding increased to 24px on all sides */
@@ -58,10 +52,11 @@
 }
 
 .blog-card__title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   margin: 0 0 8px 0;
   line-height: 1.3;
+  color: var(--color-text);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -71,11 +66,11 @@
 
 /* AC5: bottom border acts as separator between excerpt and meta block */
 .blog-card__excerpt {
-  font-size: 14px;
-  color: #555555;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   margin: 0 0 16px 0;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border);
   line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -103,30 +98,30 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #c7d2fe;
+  border: 2px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
-/* AC7 + AC8: initials fallback 40×40, primary colour bg, white text */
+/* AC7 + AC8: initials fallback 40×40, primary colour bg, text-on-primary */
 .blog-card__avatar-initials {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: var(--blog-card-primary, #2563eb);
-  border: 2px solid #c7d2fe;
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-text-on-primary);
   flex-shrink: 0;
 }
 
 .blog-card__author-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333333;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
 }
 
 .blog-card__tags {
@@ -139,36 +134,38 @@
 .blog-card__tag {
   font-size: 12px;
   padding: 4px 10px;
-  background-color: rgba(37, 99, 235, 0.12);
+  background-color: var(--color-primary-subtle);
   border-radius: 12px;
-  color: #1d4ed8;
+  color: var(--color-primary-light);
   font-weight: 500;
   transition: background-color 0.15s ease;
 }
 
 .blog-card__tag:hover {
-  background-color: rgba(37, 99, 235, 0.22);
+  background-color: var(--color-primary-subtle);
+  opacity: 0.85;
 }
 
 /* AC10: +N more pill — same shape but muted/italic */
 .blog-card__tag-more {
   font-size: 12px;
   padding: 4px 10px;
-  background-color: rgba(37, 99, 235, 0.06);
+  background-color: var(--color-surface-hover);
   border-radius: 12px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-style: italic;
   transition: background-color 0.15s ease;
 }
 
 .blog-card__tag-more:hover {
-  background-color: rgba(37, 99, 235, 0.12);
+  background-color: var(--color-surface-hover);
+  opacity: 0.85;
 }
 
 /* AC11: reading time in meta block */
 .blog-card__reading-time {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .blog-card__reading-time span {
@@ -177,5 +174,5 @@
 
 .blog-card__timestamp {
   font-size: 12px;
-  color: #999999;
+  color: var(--color-text-disabled);
 }

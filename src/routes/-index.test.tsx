@@ -64,9 +64,18 @@ describe('HomePage styles', () => {
     expect(section).toHaveClass(styles.section!);
   });
 
-  it('defines background color #836565 in section styles', () => {
+  it('defines background color using design tokens (not a hardcoded value) in section styles', () => {
     const scssPath = resolve(dirname(fileURLToPath(import.meta.url)), 'index.module.scss');
     const scss = readFileSync(scssPath, 'utf8');
-    expect(scss).toContain('background-color: #836565');
+    // After the design-token redesign, the old hardcoded #836565 is replaced with a token reference
+    // Accept either a CSS custom property or an SCSS variable for the background
+    const hasTokenBackground =
+      scss.includes('var(--color-bg)') ||
+      scss.includes('$color-bg') ||
+      scss.includes('var(--color-surface)') ||
+      scss.includes('$color-surface');
+    expect(hasTokenBackground).toBe(true);
+    // The old hardcoded color must no longer be present
+    expect(scss).not.toContain('background-color: #836565');
   });
 });

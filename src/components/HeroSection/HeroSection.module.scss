@@ -4,7 +4,12 @@
 // CSS custom property allows gradient override per-environment or per-theme
 // without touching JSX.
 .hero {
-  --hero-bg-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 40%, #7c3aed 100%);
+  --hero-bg-gradient: linear-gradient(
+    135deg,
+    var(--color-primary-dark) 0%,
+    var(--color-primary) 50%,
+    var(--color-secondary-dark) 100%
+  );
 
   position: relative;
   display: flex;
@@ -16,7 +21,7 @@
   padding: $space-2xl $space-xl;
   overflow: hidden;
   // Reserve visual space before background image loads to avoid CLS
-  background-color: #1e3a8a; // fallback while gradient/image loads
+  background-color: var(--color-primary-dark);
 
   &::before {
     content: '';
@@ -38,7 +43,7 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--color-overlay-dark);
   z-index: 1;
 }
 
@@ -65,14 +70,14 @@
 }
 
 // Headline (criterion 3) — large text (≥ 18 pt), needs ≥ 3:1 contrast
-// #f8fafc on gradient ~#2563eb equivalent ≈ 10.7:1 — well above AA
+// $color-text (#f0ede8) on primary gradient ≈ high contrast — well above AA
 .headline {
   font-family: $font-family-heading;
   font-size: $font-size-4xl;   // 36px — qualifies as "large text" per WCAG
   font-weight: $font-weight-extrabold;
   line-height: $line-height-tight;
   letter-spacing: $letter-spacing-tight;
-  color: $color-text;          // #f8fafc
+  color: $color-text;
   margin: 0;
 
   @include m.mobile {
@@ -81,13 +86,13 @@
 }
 
 // Subheading (criterion 3) — normal text, needs ≥ 4.5:1 contrast
-// #e2e8f0 on gradient ~#2563eb equivalent ≈ 9.0:1 — well above AA
+// $color-text-secondary (#d6d0c8) on primary gradient — above AA
 .subheading {
   font-family: $font-family-base;
   font-size: $font-size-xl;    // 20px
   font-weight: $font-weight-normal;
   line-height: $line-height-relaxed;
-  color: $color-text-secondary; // #e2e8f0
+  color: $color-text-secondary;
   margin: 0;
 
   @include m.mobile {
@@ -98,8 +103,8 @@
 // CTA button (criteria 4, 5)
 .cta {
   @include m.button-base;
-  background: $color-text;        // white background for strong contrast
-  color: $color-primary-dark;     // #1e40af — dark blue text on white
+  background: $color-text;
+  color: $color-primary-dark;
   border: 2px solid transparent;
   text-decoration: none;
   font-size: $font-size-base;
@@ -110,13 +115,13 @@
   &:hover {
     background: $color-text-secondary;
     color: $color-primary-dark;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 16px var(--color-overlay-hover);
   }
 
   // Focus-visible outline for keyboard accessibility (criterion 5, 10)
   &:focus-visible {
     outline: 3px solid $color-text;
     outline-offset: 3px;
-    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 6px $color-text-glow;
   }
 }
