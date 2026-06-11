@@ -15,14 +15,24 @@ import React from 'react';
 import * as fs from 'fs';
 import * as path from 'path';
 import { render, screen, waitFor } from '@testing-library/react';
-import { createMemoryHistory, createRootRoute, createRouter, RouterProvider } from '@tanstack/react-router';
+import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router';
 import BlogCard from '../src/components/BlogCard';
 import SkeletonCard from '../src/components/SkeletonCard';
 
 function renderWithRouter(ui: React.ReactElement) {
-  const rootRoute = createRootRoute({ component: () => ui });
+  const rootRoute = createRootRoute();
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: () => ui,
+  });
+  const blogDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/blog/$id',
+    component: () => null,
+  });
   const router = createRouter({
-    routeTree: rootRoute,
+    routeTree: rootRoute.addChildren([indexRoute, blogDetailRoute]),
     history: createMemoryHistory({ initialEntries: ['/'] }),
   });
   return render(<RouterProvider router={router} />);
