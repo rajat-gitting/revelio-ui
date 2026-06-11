@@ -42,6 +42,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // e2e/ holds Playwright specs (run via `npm run smoke`); vitest's default
+    // include matches *.spec.ts and would try (and fail) to run them.
+    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     setupFiles: ['./src/tests/setup.ts'],
     env: {
       VITE_API_BASE_URL: 'http://localhost:8080/api',
