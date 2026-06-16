@@ -92,23 +92,56 @@ describe('getReadingTime', () => {
 });
 
 describe('BlogCard reading time display', () => {
-  it('displays "1 min read" for an excerpt of exactly 200 words', async () => {
-    const post = { ...mockPost, excerpt: buildExcerpt(200) };
+  // AC3: BlogCard displays "{n} min read" using readingTimeMinutes from the API response when present
+  it('displays "4 min read" when readingTimeMinutes is 4 (server-supplied value)', async () => {
+    const post = { ...mockPost, readingTimeMinutes: 4 };
+    renderWithRouter(<BlogCard post={post} />);
+    await waitFor(() => {
+      expect(screen.getByText('4 min read')).toBeInTheDocument();
+    });
+  });
+
+  // AC4: When readingTimeMinutes is absent, BlogCard falls back to "1 min read"
+  it('displays "1 min read" when readingTimeMinutes is absent (fallback)', async () => {
+    // No readingTimeMinutes field — regardless of excerpt length, must show "1 min read"
+    const post = { ...mockPost, excerpt: buildExcerpt(201) };
     renderWithRouter(<BlogCard post={post} />);
     await waitFor(() => {
       expect(screen.getByText('1 min read')).toBeInTheDocument();
     });
   });
 
-  it('displays "2 min read" for an excerpt of 201 words', async () => {
-    const post = { ...mockPost, excerpt: buildExcerpt(201) };
+  // AC4: When readingTimeMinutes is null, BlogCard falls back to "1 min read"
+  it('displays "1 min read" when readingTimeMinutes is null (fallback, never "0 min read")', async () => {
+    const post = { ...mockPost, readingTimeMinutes: undefined };
     renderWithRouter(<BlogCard post={post} />);
     await waitFor(() => {
-      expect(screen.getByText('2 min read')).toBeInTheDocument();
+      expect(screen.getByText('1 min read')).toBeInTheDocument();
     });
   });
 
-  it('displays "1 min read" for an empty excerpt', async () => {
+  // AC6: listing renders correctly when readingTimeMinutes is missing — no crash, no blank card
+  it('renders complete card without crash when readingTimeMinutes is missing', async () => {
+    const post = { ...mockPost };
+    renderWithRouter(<BlogCard post={post} />);
+    await waitFor(() => {
+      expect(screen.getByText('Test Post')).toBeInTheDocument();
+      expect(screen.getByText('1 min read')).toBeInTheDocument();
+    });
+  });
+
+  // AC7: the label is NOT driven by getReadingTime(excerpt) — a long excerpt without readingTimeMinutes shows "1 min read", not "2 min read"
+  it('does NOT use getReadingTime(excerpt) for the displayed label — ignores excerpt length', async () => {
+    // 201-word excerpt would give "2 min read" via old getReadingTime, but without server field should be "1 min read"
+    const post = { ...mockPost, excerpt: buildExcerpt(201) };
+    renderWithRouter(<BlogCard post={post} />);
+    await waitFor(() => {
+      expect(screen.queryByText('2 min read')).not.toBeInTheDocument();
+      expect(screen.getByText('1 min read')).toBeInTheDocument();
+    });
+  });
+
+  it('displays "1 min read" for an empty excerpt when no readingTimeMinutes is set', async () => {
     const post = { ...mockPost, excerpt: '' };
     renderWithRouter(<BlogCard post={post} />);
     await waitFor(() => {

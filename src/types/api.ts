@@ -32,6 +32,7 @@ export interface BlogPostDto {
   tags: string[];
   publishedAt: string;
   body: string;
+  readingTimeMinutes?: number;
 }
 
 export interface BlogListDto {
