@@ -16,6 +16,7 @@ export interface BlogPost {
   author: Author;
   tags: string[];
   publishedAt: string;
+  readingTimeMinutes: number | null;
 }
 
 interface BlogCardProps {
@@ -53,7 +54,7 @@ export function getReadingTime(excerpt: string): number {
 function BlogCard({ post }: BlogCardProps): React.JSX.Element {
   const displayTags = post.tags.slice(0, 3);
   const extraTags = post.tags.length - 3;
-  const readingTime = getReadingTime(post.excerpt);
+  const readingTime = post.readingTimeMinutes ?? getReadingTime(post.excerpt);
 
   return (
     <Link to="/blog/$id" params={{ id: String(post.id) }} className="blog-card" aria-label={`Read ${post.title}`}>

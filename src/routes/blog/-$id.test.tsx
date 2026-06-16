@@ -68,8 +68,9 @@ const makePost = (overrides: Partial<BlogPostDto> = {}): BlogPostDto => ({
   tags: ['react', 'frontend', 'javascript', 'tutorial'],
   publishedAt: '2024-03-15T10:00:00Z',
   body: BODY_TEXT,
+  readingTimeMinutes: null,
   ...overrides,
-});
+} satisfies BlogPostDto);
 
 // ---------------------------------------------------------------------------
 // Router helper — renders the /blog/$id route component with a given id

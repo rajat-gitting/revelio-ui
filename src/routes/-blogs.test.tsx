@@ -35,8 +35,9 @@ const makePosts = (count: number, overrides?: Partial<BlogPostDto>): BlogPostDto
     tags: ['test'],
     publishedAt: '2024-01-01T00:00:00Z',
     body: '',
+    readingTimeMinutes: null,
     ...overrides,
-  }));
+  } satisfies BlogPostDto));
 
 const makeSearchResponse = (
   posts: BlogPostDto[],
