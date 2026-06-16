@@ -16,6 +16,7 @@ export interface BlogPost {
   author: Author;
   tags: string[];
   publishedAt: string;
+  body?: string;
 }
 
 interface BlogCardProps {
@@ -45,15 +46,15 @@ function formatTimestamp(publishedAt: string): string {
   }
 }
 
-export function getReadingTime(excerpt: string): number {
-  const wordCount = excerpt.trim().split(/\s+/).filter(Boolean).length;
+export function getReadingTime(body: string): number {
+  const wordCount = (body ?? '').trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(wordCount / 200));
 }
 
 function BlogCard({ post }: BlogCardProps): React.JSX.Element {
   const displayTags = post.tags.slice(0, 3);
   const extraTags = post.tags.length - 3;
-  const readingTime = getReadingTime(post.excerpt);
+  const readingTime = getReadingTime(post.body ?? '');
 
   return (
     <Link to="/blog/$id" params={{ id: String(post.id) }} className="blog-card" aria-label={`Read ${post.title}`}>

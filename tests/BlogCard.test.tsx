@@ -92,24 +92,24 @@ describe('getReadingTime', () => {
 });
 
 describe('BlogCard reading time display', () => {
-  it('displays "1 min read" for an excerpt of exactly 200 words', async () => {
-    const post = { ...mockPost, excerpt: buildExcerpt(200) };
+  it('displays "1 min read" for a body of exactly 200 words', async () => {
+    const post = { ...mockPost, body: buildExcerpt(200) };
     renderWithRouter(<BlogCard post={post} />);
     await waitFor(() => {
       expect(screen.getByText('1 min read')).toBeInTheDocument();
     });
   });
 
-  it('displays "2 min read" for an excerpt of 201 words', async () => {
-    const post = { ...mockPost, excerpt: buildExcerpt(201) };
+  it('displays "2 min read" for a body of 201 words', async () => {
+    const post = { ...mockPost, body: buildExcerpt(201) };
     renderWithRouter(<BlogCard post={post} />);
     await waitFor(() => {
       expect(screen.getByText('2 min read')).toBeInTheDocument();
     });
   });
 
-  it('displays "1 min read" for an empty excerpt', async () => {
-    const post = { ...mockPost, excerpt: '' };
+  it('displays "1 min read" for an empty body', async () => {
+    const post = { ...mockPost, body: '' };
     renderWithRouter(<BlogCard post={post} />);
     await waitFor(() => {
       expect(screen.getByText('1 min read')).toBeInTheDocument();
