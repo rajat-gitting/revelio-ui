@@ -12,8 +12,8 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 
-import { getBlogs } from '@/api/services/blogService';
-import type { BlogPostDto } from '@/types/api';
+import { getPosts, getBlogFilters } from '@/api/services/blogService';
+import type { BlogPostDto, PagedResponse } from '@/types/api';
 import { Route } from '@/routes/index';
 import HeroSection from './HeroSection';
 
@@ -23,7 +23,8 @@ import HeroSection from './HeroSection';
 
 vi.mock('@/api/services/blogService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/services/blogService')>()),
-  getBlogs: vi.fn(),
+  getPosts: vi.fn(),
+  getBlogFilters: vi.fn(),
 }));
 
 const mockBlogPosts: BlogPostDto[] = [
@@ -39,12 +40,21 @@ const mockBlogPosts: BlogPostDto[] = [
   },
 ];
 
+const makePagedResponse = (posts: BlogPostDto[]): PagedResponse<BlogPostDto> => ({
+  content: posts,
+  totalElements: posts.length,
+  totalPages: 1,
+  number: 0,
+  size: 12,
+});
+
 const HomePage = Route.options.component;
 
 const rootRoute = createRootRoute();
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  validateSearch: Route.options.validateSearch,
   component: HomePage,
 });
 const routeTree = rootRoute.addChildren([indexRoute]);
@@ -95,7 +105,8 @@ const HERO_GRADIENT_DARK = '#1e40af';
 describe('Criterion 1 — Page header renders above blog cards', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
   it('page header appears before the blog-section element in the DOM', async () => {
@@ -463,7 +474,8 @@ describe('Criterion 9 — Vertical spacing gap between hero and blog grid', () =
 
   it('renders page header before blog-section with blog-section having a DOM separator', async () => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
 
     const { container } = renderHomePage();
 
@@ -543,7 +555,8 @@ describe('Criterion 10 — Keyboard accessibility', () => {
 
   it('page header renders inside the homepage DOM correctly alongside blog content', async () => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
 
     const { container } = renderHomePage();
 
@@ -562,26 +575,27 @@ describe('Criterion 10 — Keyboard accessibility', () => {
 describe('HomePage simple header integration (CR-35)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
-  it('homepage renders a simple page header (no hero banner) with Search blogs → CTA', async () => {
+  it('homepage renders a simple page header (no hero banner) with inline search bar', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: 'Search blogs →' })).toBeInTheDocument();
+      // CR-37: search is now inline on the home page (no separate 'Search blogs →' link)
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
     });
 
     // The full hero banner texts are gone
     expect(screen.queryByText('Welcome to Our Blog')).not.toBeInTheDocument();
     expect(screen.queryByText('Discover articles, insights, and stories')).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Search blogs →' }),
-    ).toBeInTheDocument();
+    // No separate 'Search blogs' link needed since search is inline
+    expect(screen.queryByRole('link', { name: 'Search blogs →' })).not.toBeInTheDocument();
   });
 
   it('homepage renders simple header during loading state', async () => {
-    vi.mocked(getBlogs).mockImplementation(
+    vi.mocked(getPosts).mockImplementation(
       () => new Promise(() => undefined), // never resolves
     );
 

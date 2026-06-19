@@ -9,14 +9,15 @@ import {
   RouterProvider,
 } from '@tanstack/react-router';
 
-import { getBlogs, createBlog } from '@/api/services/blogService';
-import type { BlogPostDto } from '@/types/api';
+import { getPosts, getBlogFilters, createBlog } from '@/api/services/blogService';
+import type { BlogPostDto, PagedResponse } from '@/types/api';
 import { Route as IndexRoute } from '@/routes/index';
 import { Route as CreateRoute } from '@/routes/blog/create';
 
 vi.mock('@/api/services/blogService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/services/blogService')>()),
-  getBlogs: vi.fn(),
+  getPosts: vi.fn(),
+  getBlogFilters: vi.fn(),
   createBlog: vi.fn(),
 }));
 
@@ -42,6 +43,14 @@ const newPost: BlogPostDto = {
   body: 'The full content of my new blog post.',
 };
 
+const makePagedResponse = (posts: BlogPostDto[]): PagedResponse<BlogPostDto> => ({
+  content: posts,
+  totalElements: posts.length,
+  totalPages: 1,
+  number: 0,
+  size: 12,
+});
+
 const IndexPage = IndexRoute.options.component!;
 const CreatePage = CreateRoute.options.component!;
 
@@ -50,6 +59,7 @@ function buildRouter(initialEntry: string) {
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/',
+    validateSearch: IndexRoute.options.validateSearch,
     component: IndexPage,
   });
   const createRoute_ = createRoute({
@@ -57,12 +67,7 @@ function buildRouter(initialEntry: string) {
     path: '/blog/create',
     component: CreatePage,
   });
-  const blogsRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/blogs',
-    component: () => <div>blogs page</div>,
-  });
-  const routeTree = rootRoute.addChildren([indexRoute, createRoute_, blogsRoute]);
+  const routeTree = rootRoute.addChildren([indexRoute, createRoute_]);
   const history = createMemoryHistory({ initialEntries: [initialEntry] });
   const router = createRouter({ routeTree, history });
   return router;
@@ -78,7 +83,8 @@ async function renderAt(initialEntry: string) {
 describe('AC-1: Create Blog button on listing page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue([mockPost]);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse([mockPost]));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
   it('shows a "Create Blog" button on the home page', async () => {
@@ -92,7 +98,8 @@ describe('AC-1: Create Blog button on listing page', () => {
 describe('AC-2: Create Blog navigates to create-blog page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue([mockPost]);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse([mockPost]));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
   it('clicking Create Blog renders the create-blog page', async () => {
@@ -237,7 +244,8 @@ describe('AC-6: createBlog called on successful submission', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(createBlog).mockResolvedValue(newPost);
-    vi.mocked(getBlogs).mockResolvedValue([mockPost]);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse([mockPost]));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
   it('calls createBlog with the form data on valid submission', async () => {
@@ -271,7 +279,8 @@ describe('AC-7: New blog card appears on listing after save', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(createBlog).mockResolvedValue(newPost);
-    vi.mocked(getBlogs).mockResolvedValue([mockPost, newPost]);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse([mockPost, newPost]));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
   it('navigates to home and shows the new blog card title after saving', async () => {

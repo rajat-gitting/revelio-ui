@@ -72,7 +72,7 @@ function BlogDetailPage(): React.JSX.Element {
               ? 'The blog post you are looking for does not exist or is no longer available.'
               : error ?? 'Something went wrong while loading this post.'}
           </p>
-          <Link to="/blogs" search={{ q: '', category: [], author: [], page: 1 }} className={styles.backLink}>
+          <Link to="/" search={{ q: '', category: [], author: [], page: 1 }} className={styles.backLink}>
             ← Back to Blog
           </Link>
         </div>
@@ -85,7 +85,7 @@ function BlogDetailPage(): React.JSX.Element {
   return (
     <article className={styles.page} data-testid="blog-detail-page">
       {/* Back link */}
-      <Link to="/blogs" search={{ q: '', category: [], author: [], page: 1 }} className={styles.backLink} data-testid="back-to-blogs">
+      <Link to="/" search={{ q: '', category: [], author: [], page: 1 }} className={styles.backLink} data-testid="back-to-blogs">
         ← Back to Blog
       </Link>
 

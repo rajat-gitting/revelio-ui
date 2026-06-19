@@ -5,14 +5,15 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router';
-import { getBlogs } from '@/api/services/blogService';
-import type { BlogPostDto } from '@/types/api';
+import { getPosts, getBlogFilters } from '@/api/services/blogService';
+import type { BlogPostDto, PagedResponse } from '@/types/api';
 import { Route } from './index';
 import styles from '@/routes/index.module.scss';
 
 vi.mock('@/api/services/blogService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/services/blogService')>()),
-  getBlogs: vi.fn(),
+  getPosts: vi.fn(),
+  getBlogFilters: vi.fn(),
 }));
 
 const mockBlogPosts: BlogPostDto[] = [
@@ -28,12 +29,21 @@ const mockBlogPosts: BlogPostDto[] = [
   },
 ];
 
+const makePagedResponse = (posts: BlogPostDto[]): PagedResponse<BlogPostDto> => ({
+  content: posts,
+  totalElements: posts.length,
+  totalPages: 1,
+  number: 0,
+  size: 12,
+});
+
 const HomePage = Route.options.component;
 
 const rootRoute = createRootRoute();
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  validateSearch: Route.options.validateSearch,
   component: HomePage,
 });
 
@@ -48,20 +58,19 @@ function renderHomePage() {
 describe('HomePage styles', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
-  it('applies the section CSS module class when posts are loaded', async () => {
+  it('applies the grid CSS module class when posts are loaded', async () => {
     const { container } = renderHomePage();
 
     await waitFor(() => {
       expect(container.querySelector('#blog-section')).toBeInTheDocument();
     });
 
-    // The blog-card section carries the .section module class and the id="blog-section"
-    // The hero section (also a <section>) is rendered first but does not have this class.
     const section = container.querySelector('#blog-section')!;
-    expect(section).toHaveClass(styles.section!);
+    expect(section).toHaveClass(styles.grid!);
   });
 
   it('defines background color using design tokens (not a hardcoded value) in section styles', () => {
@@ -80,22 +89,22 @@ describe('HomePage styles', () => {
   });
 });
 
-// CR-35: hero removed, simple header with CTA
-describe('HomePage simple header — CR-35', () => {
+// CR-37: Home page has search/filter inline; no "Search blogs →" link
+describe('HomePage CR-37 — search/filter on Home page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
+    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
-  it('does not render the Welcome to Our Blog hero banner', async () => {
+  it('does not render a "Search blogs" link', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: 'Search blogs →' })).toBeInTheDocument();
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
     });
 
-    expect(screen.queryByText('Welcome to Our Blog')).not.toBeInTheDocument();
-    expect(screen.queryByText('Discover articles, insights, and stories')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /search blogs/i })).not.toBeInTheDocument();
   });
 
   it('renders a simple page header (not the full hero)', async () => {
@@ -111,18 +120,37 @@ describe('HomePage simple header — CR-35', () => {
     expect(header).not.toHaveAttribute('data-testid', 'hero-section');
   });
 
-  it('CTA is labelled "Search blogs →" and links to /blogs', async () => {
+  it('renders the Create Blog button on the Home page', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: 'Search blogs →' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /create blog/i })).toBeInTheDocument();
     });
+  });
 
-    const cta = screen.getByRole('link', { name: 'Search blogs →' });
-    expect(cta).toBeInTheDocument();
-    // TanStack Router may append search params; the href must start with /blogs
-    const href = cta.getAttribute('href') ?? '';
-    expect(href.startsWith('/blogs')).toBe(true);
+  it('renders the search input above the blog card grid', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+      expect(screen.getByTestId('results-grid')).toBeInTheDocument();
+    });
+  });
+
+  it('renders a Category / Tag filter', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('category-filter')).toBeInTheDocument();
+    });
+  });
+
+  it('renders an Author filter', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('author-filter')).toBeInTheDocument();
+    });
   });
 
   it('grid uses full width — Layout.module.scss has no max-width on .main', () => {
