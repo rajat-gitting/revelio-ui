@@ -11,6 +11,9 @@ export default function Navbar() {
       <Link to="/about" className={styles.link} activeProps={{ className: styles.active }}>
         About
       </Link>
+      <Link to="/blogs" search={{ q: '', category: [], author: [], page: 1 }} className={styles.link} activeProps={{ className: styles.active }}>
+        Blogs
+      </Link>
     </nav>
   );
 }

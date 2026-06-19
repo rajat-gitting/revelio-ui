@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router';
 import { getBlogs } from '@/api/services/blogService';
 import type { BlogPostDto } from '@/types/api';
@@ -77,5 +77,24 @@ describe('HomePage styles', () => {
     expect(hasTokenBackground).toBe(true);
     // The old hardcoded color must no longer be present
     expect(scss).not.toContain('background-color: #836565');
+  });
+});
+
+describe('HomePage hero CTA — CR-34', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
+  });
+
+  it('hero CTA is labelled "Search blogs →" and links to /blogs', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('hero-section')).toBeInTheDocument();
+    });
+
+    const cta = screen.getByRole('link', { name: 'Search blogs →' });
+    expect(cta).toBeInTheDocument();
+    expect(cta).toHaveAttribute('href', '/blogs');
   });
 });
