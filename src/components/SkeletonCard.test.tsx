@@ -47,6 +47,12 @@ describe('SkeletonCard', () => {
     expect(timestamp).toBeInTheDocument();
   });
 
+  it('renders skeleton reading-time placeholder (matches BlogCard meta)', () => {
+    const { container } = render(<SkeletonCard />);
+    const readingTime = container.querySelector('.skeleton-card__reading-time');
+    expect(readingTime).toBeInTheDocument();
+  });
+
   it('applies correct CSS classes for styling', () => {
     const { container } = render(<SkeletonCard />);
     const skeletonCard = container.querySelector('.skeleton-card');

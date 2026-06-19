@@ -1,29 +1,31 @@
-import './SkeletonCard.css';
+import styles from './SkeletonCard.module.scss';
 
 function SkeletonCard(): JSX.Element {
   return (
-    <div className="skeleton-card" data-testid="skeleton-card">
-      <div className="skeleton-card__image" />
-      <div className="skeleton-card__content">
-        <div className="skeleton-card__title" />
-        <div className="skeleton-card__excerpt">
-          <div className="skeleton-card__excerpt-line" />
-          <div className="skeleton-card__excerpt-line" />
-          <div className="skeleton-card__excerpt-line skeleton-card__excerpt-line--short" />
+    <div className={styles['skeleton-card']} data-testid="skeleton-card">
+      <div className={styles['skeleton-card__image']} />
+      <div className={styles['skeleton-card__content']}>
+        <div className={styles['skeleton-card__title']} />
+        <div className={styles['skeleton-card__excerpt']}>
+          <div className={styles['skeleton-card__excerpt-line']} />
+          <div className={styles['skeleton-card__excerpt-line']} />
+          <div
+            className={`${styles['skeleton-card__excerpt-line']} ${styles['skeleton-card__excerpt-line--short']}`}
+          />
         </div>
-        <div className="skeleton-card__footer">
-          <div className="skeleton-card__author">
-            <div className="skeleton-card__avatar" />
-            <div className="skeleton-card__author-name" />
+        <div className={styles['skeleton-card__footer']}>
+          <div className={styles['skeleton-card__author']}>
+            <div className={styles['skeleton-card__avatar']} />
+            <div className={styles['skeleton-card__author-name']} />
           </div>
-          <div className="skeleton-card__tags">
-            <div className="skeleton-card__tag" />
-            <div className="skeleton-card__tag" />
-            <div className="skeleton-card__tag" />
+          <div className={styles['skeleton-card__tags']}>
+            <div className={styles['skeleton-card__tag']} />
+            <div className={styles['skeleton-card__tag']} />
+            <div className={styles['skeleton-card__tag']} />
           </div>
         </div>
-        <div className="skeleton-card__reading-time" />
-        <div className="skeleton-card__timestamp" />
+        <div className={styles['skeleton-card__reading-time']} />
+        <div className={styles['skeleton-card__timestamp']} />
       </div>
     </div>
   );

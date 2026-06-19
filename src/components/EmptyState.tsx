@@ -1,4 +1,4 @@
-import './EmptyState.css';
+import styles from './EmptyState.module.scss';
 
 interface EmptyStateProps {
   message: string;
@@ -6,9 +6,9 @@ interface EmptyStateProps {
 
 function EmptyState({ message }: EmptyStateProps): JSX.Element {
   return (
-    <div className="empty-state">
-      <div className="empty-state__content">
-        <p className="empty-state__message">{message}</p>
+    <div className={styles['empty-state']}>
+      <div className={styles['empty-state__content']}>
+        <p className={styles['empty-state__message']}>{message}</p>
       </div>
     </div>
   );

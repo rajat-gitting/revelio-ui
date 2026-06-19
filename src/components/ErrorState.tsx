@@ -1,4 +1,4 @@
-import './ErrorState.css';
+import styles from './ErrorState.module.scss';
 
 interface ErrorStateProps {
   message: string;
@@ -7,10 +7,10 @@ interface ErrorStateProps {
 
 function ErrorState({ message, onRetry }: ErrorStateProps): JSX.Element {
   return (
-    <div className="error-state">
-      <div className="error-state__content">
-        <p className="error-state__message">{message}</p>
-        <button className="error-state__retry-button" onClick={onRetry}>
+    <div className={styles['error-state']}>
+      <div className={styles['error-state__content']}>
+        <p className={styles['error-state__message']}>{message}</p>
+        <button className={styles['error-state__retry-button']} onClick={onRetry}>
           Retry
         </button>
       </div>

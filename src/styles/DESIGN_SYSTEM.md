@@ -2,95 +2,94 @@
 
 ## Overview
 
-This document describes the color palette, typography system, and design tokens used throughout the Revelio UI. All tokens are defined in `_variables.scss` and exposed as CSS custom properties in `global.scss`.
+This document describes the color palette, typography system, and design tokens used throughout the Revelio UI. All tokens are defined in `_variables.scss` and exposed as CSS custom properties in `global.scss`. The theme is a **dark editorial** look: a calm deep-teal primary, a warm-stone secondary, and a restrained amber accent on a deep charcoal background.
+
+The exact token values below mirror `_variables.scss`, and the WCAG contrast pairings are verified in `design-system.test.ts` — update both when changing a token.
 
 ## Color Palette
 
-### Primary Colors (Blue Scale)
+### Primary Colors (Teal Scale)
 
 Primary colors are used for main actions, links, and key UI elements.
 
-- **Primary**: `#2563eb` - Main brand color
-- **Primary Hover**: `#1d4ed8` - Interactive hover state
-- **Primary Light**: `#3b82f6` - Lighter variant
-- **Primary Dark**: `#1e40af` - Darker variant
+- **Primary**: `#2a7d6f` - Main brand color
+- **Primary Hover**: `#1f6059` - Interactive hover state
+- **Primary Light**: `#3d9e8e` - Lighter variant
+- **Primary Dark**: `#165448` - Darker variant
+- **Primary Subtle**: `rgba(42, 125, 111, 0.18)` - Tinted fills (e.g. tag pills)
 
-**WCAG Contrast Ratios** (on dark background `#0b1120`):
-- Primary: 3.64:1 (suitable for large text only, AA: 3:1+)
-- Primary Light: 5.12:1 (AA compliant for normal text)
+### Secondary Colors (Warm Stone Scale)
 
-### Secondary Colors (Purple Scale)
+Secondary colors are used as a neutral complement to the primary teal.
 
-Secondary colors are used for complementary UI elements and accents.
+- **Secondary**: `#8c7b6e` - Secondary brand color
+- **Secondary Hover**: `#7a6b5f` - Interactive hover state
+- **Secondary Light**: `#a8998e` - Lighter variant
+- **Secondary Dark**: `#6b5c51` - Darker variant
 
-- **Secondary**: `#7c3aed` - Secondary brand color
-- **Secondary Hover**: `#6d28d9` - Interactive hover state
-- **Secondary Light**: `#8b5cf6` - Lighter variant
-- **Secondary Dark**: `#5b21b6` - Darker variant
+### Accent Colors (Warm Amber Scale)
 
-**WCAG Contrast Ratios** (on dark background):
-- Secondary: 3.30:1 (suitable for large text only, AA: 3:1+)
+Accent colors are used for restrained highlights and call-to-action emphasis.
 
-### Accent Colors (Emerald Scale)
+- **Accent**: `#b08d5b` - Accent color
+- **Accent Hover**: `#9a7a4a` - Interactive hover state
+- **Accent Light**: `#c9a87a` - Lighter variant
+- **Accent Dark**: `#7d6034` - Darker variant
 
-Accent colors are used for success states, highlights, and call-to-action elements.
+### Background & Surface Colors
 
-- **Accent**: `#10b981` - Accent color
-- **Accent Hover**: `#059669` - Interactive hover state
-- **Accent Light**: `#34d399` - Lighter variant
-- **Accent Dark**: `#047857` - Darker variant
-
-**WCAG Contrast Ratios** (on dark background):
-- Accent: 7.42:1 (AAA compliant for normal text)
-
-### Background Colors
-
-- **Background**: `#0b1120` - Main page background
-- **Background Secondary**: `#0f172a` - Secondary surfaces
-- **Surface**: `#111827` - Card and component backgrounds
-- **Surface Elevated**: `#1f2937` - Elevated components (modals, dropdowns)
+- **Background**: `#12161e` - Main page background
+- **Background Secondary**: `#181d27` - Secondary surfaces
+- **Surface**: `#1e2430` - Card and component backgrounds
+- **Surface Elevated**: `#252c3a` - Elevated components (modals, dropdowns)
+- **Surface Hover**: `rgba(255, 255, 255, 0.05)` - Hover overlay on surfaces
 
 ### Text Colors
 
-- **Text**: `#f8fafc` - Primary text (contrast ratio: 18.0:1, AAA compliant)
-- **Text Secondary**: `#e2e8f0` - Secondary text (contrast ratio: 15.3:1, AAA compliant)
-- **Text Muted**: `#94a3b8` - Muted/placeholder text (contrast ratio: 7.3:1, AAA compliant)
-- **Text Disabled**: `#64748b` - Disabled state text (contrast ratio: 4.0:1, suitable for large text only)
+A warm off-white hierarchy chosen for high contrast on the charcoal background.
+
+- **Text**: `#f0ede8` - Primary text
+- **Text Secondary**: `#d6d0c8` - Secondary text
+- **Text Muted**: `#9e9790` - Muted/placeholder text
+- **Text Disabled**: `#6b6560` - Disabled state text (large text only)
+- **Text On Primary**: `#ffffff` - Text on primary-colored fills
 
 ### Border Colors
 
-- **Border**: `#1f2937` - Default borders
-- **Border Light**: `#334155` - Lighter borders for emphasis
-- **Border Focus**: `#2563eb` - Focus state borders (same as Primary)
+- **Border**: `#2a3040` - Default borders
+- **Border Light**: `#363d50` - Lighter borders for emphasis
+- **Border Focus**: `#2a7d6f` - Focus state borders (same as Primary)
 
 ### Semantic Colors
 
-#### Error (Red Scale)
-- **Error**: `#f87171` - Error messages and alerts
-- **Error Dark**: `#dc2626` - Error hover states
+Muted, editorial tones — deliberately not harsh or fully saturated.
 
-#### Warning (Amber Scale)
-- **Warning**: `#fbbf24` - Warning messages
-- **Warning Dark**: `#f59e0b` - Warning hover states
+#### Error
+- **Error**: `#d97b6b` - Error messages and alerts
+- **Error Dark**: `#b55a4a` - Error hover states
 
-#### Success (Green Scale)
-- **Success**: `#4ade80` - Success messages
-- **Success Dark**: `#22c55e` - Success hover states
+#### Warning
+- **Warning**: `#c9973d` - Warning messages
+- **Warning Dark**: `#a87a28` - Warning hover states
 
-#### Info (Blue Scale)
-- **Info**: `#60a5fa` - Informational messages
-- **Info Dark**: `#3b82f6` - Info hover states
+#### Success
+- **Success**: `#5a9e82` - Success messages
+- **Success Dark**: `#3d7a60` - Success hover states
+
+#### Info
+- **Info**: `#5e92b5` - Informational messages
+- **Info Dark**: `#3d6e8a` - Info hover states
 
 ## Typography
 
 ### Font Families
 
 ```scss
-// Body text
-$font-family-base: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+// Body text — clean sans
+$font-family-base: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-// Headings
-$font-family-heading: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+// Headings — editorial serif
+$font-family-heading: 'Georgia', 'Cambria', ui-serif, serif;
 
 // Code
 $font-family-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
@@ -121,10 +120,12 @@ $font-family-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mon
 
 ### Line Heights
 
-- **Tight**: `1.25` - Headings
-- **Snug**: `1.375` - Tight body text
-- **Normal**: `1.5` - Default body text
-- **Relaxed**: `1.625` - Loose body text, paragraphs
+Slightly more generous than a default scale for editorial readability.
+
+- **Tight**: `1.2` - Headings
+- **Snug**: `1.35` - Tight body text
+- **Normal**: `1.55` - Default body text
+- **Relaxed**: `1.7` - Loose body text, paragraphs
 - **Loose**: `2` - Very spacious text
 
 ### Letter Spacing
@@ -134,12 +135,27 @@ $font-family-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mon
 - **Wide**: `0.03em` - Small headings, buttons
 - **Wider**: `0.05em` - Uppercase text, logos
 
+## Radii & Shadows
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `$radius-sm` | 6px | Small elements (skeleton lines, chips) |
+| `$radius-md` | 10px | Buttons, inputs, avatars-as-square |
+| `$radius-lg` | 14px | Cards, panels |
+| `$radius-full` | 999px | Pills, circular avatars |
+
+Shadows are intentionally subtle (no harsh drop shadows):
+
+- `$shadow-sm`: `0 1px 3px rgb(0 0 0 / 25%)` - Resting cards
+- `$shadow-md`: `0 4px 16px rgb(0 0 0 / 30%)` - Hover / elevated surfaces
+- `$shadow-lg`: `0 12px 32px rgb(0 0 0 / 35%)` - Modals, popovers
+
 ## Heading Styles
 
 All headings use:
-- Font family: `$font-family-heading`
+- Font family: `$font-family-heading` (editorial serif)
 - Font weight: `$font-weight-bold` (700)
-- Line height: `$line-height-tight` (1.25)
+- Line height: `$line-height-tight` (1.2)
 - Letter spacing: `$letter-spacing-tight` (-0.02em)
 - Color: `$color-text`
 
@@ -165,12 +181,14 @@ On mobile breakpoints (`< 768px`), consider reducing font sizes:
 
 ## Usage Examples
 
-### Using in SCSS
+Components consume tokens through scoped **SCSS modules** (`Component.module.scss`). Prefer the SCSS variables; the matching CSS custom properties (`var(--color-*)`) exist for cases where a runtime value is needed.
+
+### Using SCSS variables
 
 ```scss
-@use 'styles/variables' as *;
+@use '../../styles/variables' as *;
 
-.my-component {
+.myComponent {
   color: $color-text;
   background-color: $color-surface;
   font-size: $font-size-base;
@@ -179,10 +197,10 @@ On mobile breakpoints (`< 768px`), consider reducing font sizes:
 }
 ```
 
-### Using CSS Custom Properties
+### Using CSS custom properties
 
-```css
-.my-component {
+```scss
+.myComponent {
   color: var(--color-text);
   background-color: var(--color-surface);
   font-family: var(--font-family-base);
@@ -191,17 +209,16 @@ On mobile breakpoints (`< 768px`), consider reducing font sizes:
 
 ## Accessibility Notes
 
-- All color combinations meet **WCAG 2.1 Level AA** standards (4.5:1 for normal text, 3:1 for large text)
-- Primary text colors meet **AAA** standards (7:1+)
-- Focus states use clear, high-contrast borders
-- Semantic colors are not relied upon alone; icons and text provide additional context
-- Interactive elements have sufficient size (minimum 44x44px touch target)
+- Color combinations target **WCAG 2.1 Level AA** (4.5:1 for normal text, 3:1 for large text); the key pairings are asserted in `design-system.test.ts`.
+- Focus states use clear, high-contrast borders (`--color-border-focus`).
+- Semantic colors are not relied upon alone; icons and text provide additional context.
+- Interactive elements have sufficient size (minimum 44×44px touch target).
 
 ## Maintenance
 
-When adding new colors:
-1. Define in `_variables.scss`
-2. Expose as CSS custom property in `global.scss` if needed globally
-3. Verify WCAG contrast ratios using tools like [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
-4. Document in this file
-5. Update component styles to use the new tokens
+When adding or changing a color:
+1. Define it in `_variables.scss`.
+2. Expose it as a CSS custom property in `global.scss` if it is needed at runtime.
+3. Verify WCAG contrast ratios (e.g. [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)) and add/adjust the assertion in `design-system.test.ts`.
+4. Document it in this file.
+5. Update component styles to use the new token.

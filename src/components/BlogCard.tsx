@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { Link } from '@tanstack/react-router';
-import './BlogCard.css';
+import styles from './BlogCard.module.scss';
 
 interface Author {
   name: string;
@@ -56,29 +56,34 @@ function BlogCard({ post }: BlogCardProps): React.JSX.Element {
   const readingTime = getReadingTime(post.excerpt);
 
   return (
-    <Link to="/blog/$id" params={{ id: String(post.id) }} className="blog-card" aria-label={`Read ${post.title}`}>
-      <div className="blog-card__content">
-        <h2 className="blog-card__title">{post.title}</h2>
-        <p className="blog-card__excerpt">{post.excerpt}</p>
-        <div className="blog-card__meta">
-          <div className="blog-card__author">
+    <Link
+      to="/blog/$id"
+      params={{ id: String(post.id) }}
+      className={styles['blog-card']}
+      aria-label={`Read ${post.title}`}
+    >
+      <div className={styles['blog-card__content']}>
+        <h2 className={styles['blog-card__title']}>{post.title}</h2>
+        <p className={styles['blog-card__excerpt']}>{post.excerpt}</p>
+        <div className={styles['blog-card__meta']}>
+          <div className={styles['blog-card__author']}>
             {post.author.avatarUrl ? (
-              <img src={post.author.avatarUrl} alt={post.author.name} className="blog-card__avatar" />
+              <img src={post.author.avatarUrl} alt={post.author.name} className={styles['blog-card__avatar']} />
             ) : (
-              <div className="blog-card__avatar-initials">{getInitials(post.author.name)}</div>
+              <div className={styles['blog-card__avatar-initials']}>{getInitials(post.author.name)}</div>
             )}
-            <span className="blog-card__author-name">{post.author.name}</span>
+            <span className={styles['blog-card__author-name']}>{post.author.name}</span>
           </div>
-          <div className="blog-card__tags">
+          <div className={styles['blog-card__tags']}>
             {displayTags.map((tag, i) => (
-              <span key={i} className="blog-card__tag">{tag}</span>
+              <span key={i} className={styles['blog-card__tag']}>{tag}</span>
             ))}
-            {extraTags > 0 && <span className="blog-card__tag-more">+{extraTags} more</span>}
+            {extraTags > 0 && <span className={styles['blog-card__tag-more']}>+{extraTags} more</span>}
           </div>
-          <div className="blog-card__reading-time">
+          <div className={styles['blog-card__reading-time']}>
             <span aria-label={`${readingTime} minute read`}>{readingTime} min read</span>
           </div>
-          <time className="blog-card__timestamp" dateTime={post.publishedAt}>
+          <time className={styles['blog-card__timestamp']} dateTime={post.publishedAt}>
             {formatTimestamp(post.publishedAt)}
           </time>
         </div>
