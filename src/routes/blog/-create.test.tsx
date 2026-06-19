@@ -14,18 +14,12 @@ import type { BlogPostDto } from '@/types/api';
 import { Route as IndexRoute } from '@/routes/index';
 import { Route as CreateRoute } from '@/routes/blog/create';
 
-// ---------------------------------------------------------------------------
-// Mock blogService
-// ---------------------------------------------------------------------------
 vi.mock('@/api/services/blogService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/services/blogService')>()),
   getBlogs: vi.fn(),
   createBlog: vi.fn(),
 }));
 
-// ---------------------------------------------------------------------------
-// Test fixtures
-// ---------------------------------------------------------------------------
 const mockPost: BlogPostDto = {
   id: 1,
   title: 'Existing Post',
@@ -48,9 +42,6 @@ const newPost: BlogPostDto = {
   body: 'The full content of my new blog post.',
 };
 
-// ---------------------------------------------------------------------------
-// Router helpers
-// ---------------------------------------------------------------------------
 const IndexPage = IndexRoute.options.component!;
 const CreatePage = CreateRoute.options.component!;
 
@@ -80,14 +71,10 @@ function buildRouter(initialEntry: string) {
 async function renderAt(initialEntry: string) {
   const router = buildRouter(initialEntry);
   const result = render(<RouterProvider router={router} />);
-  // Wait for router to stabilize
   await router.load();
   return { ...result, router };
 }
 
-// ---------------------------------------------------------------------------
-// AC-1: 'Create Blog' button visible on the blogs listing (home) page
-// ---------------------------------------------------------------------------
 describe('AC-1: Create Blog button on listing page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -102,9 +89,6 @@ describe('AC-1: Create Blog button on listing page', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// AC-2: Clicking 'Create Blog' navigates to /blog/create
-// ---------------------------------------------------------------------------
 describe('AC-2: Create Blog navigates to create-blog page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -125,9 +109,6 @@ describe('AC-2: Create Blog navigates to create-blog page', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// AC-3: Create-blog page contains fields for title, summary, content, tags, author
-// ---------------------------------------------------------------------------
 describe('AC-3: Create-blog page has all required fields', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -169,9 +150,6 @@ describe('AC-3: Create-blog page has all required fields', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// AC-4: Page contains an 'Add Blog' submit button
-// ---------------------------------------------------------------------------
 describe('AC-4: Add Blog submit button', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -193,9 +171,6 @@ describe('AC-4: Add Blog submit button', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// AC-5: Submitting without required fields shows validation errors, no API call
-// ---------------------------------------------------------------------------
 describe('AC-5: Validation errors on empty submit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -258,10 +233,6 @@ describe('AC-5: Validation errors on empty submit', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// AC-6: On successful submission, createBlog is called with the correct payload
-// (backend persists to data/data.json — we verify the API call is made)
-// ---------------------------------------------------------------------------
 describe('AC-6: createBlog called on successful submission', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -296,14 +267,10 @@ describe('AC-6: createBlog called on successful submission', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// AC-7: After successful submission, home page shows the new card
-// ---------------------------------------------------------------------------
 describe('AC-7: New blog card appears on listing after save', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(createBlog).mockResolvedValue(newPost);
-    // After creation, getBlogs returns both the existing post and the new one
     vi.mocked(getBlogs).mockResolvedValue([mockPost, newPost]);
   });
 
@@ -324,7 +291,6 @@ describe('AC-7: New blog card appears on listing after save', () => {
       expect(vi.mocked(createBlog)).toHaveBeenCalled();
     });
 
-    // After navigation back to '/', the new blog's title should appear
     await waitFor(() => {
       expect(screen.getByText('My New Blog')).toBeInTheDocument();
     });
