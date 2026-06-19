@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 
 import { useApi } from '@/hooks/useApi';
 import { getBlogs } from '@/api/services/blogService';
 import type { BlogPostDto } from '@/types/api';
 import BlogCard from '@/components/BlogCard';
-import HeroSection from '@/components/HeroSection/HeroSection';
 import SkeletonCard from '@/components/SkeletonCard';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
@@ -16,6 +15,17 @@ const PAGE_SIZE = 10;
 export const Route = createFileRoute('/')({
   component: HomePage,
 });
+
+function PageHeader() {
+  return (
+    <header className={styles.pageHeader}>
+      <h1 className={styles.pageTitle}>Blog</h1>
+      <Link to="/blogs" search={{ q: '', category: [], author: [], page: 1 }} className={styles.searchCta}>
+        Search blogs →
+      </Link>
+    </header>
+  );
+}
 
 function HomePage() {
   const [extraPosts, setExtraPosts] = useState<BlogPostDto[]>([]);
@@ -40,19 +50,10 @@ function HomePage() {
     }
   };
 
-  const hero = (
-    <HeroSection
-      headline="Welcome to Our Blog"
-      subheading="Discover articles, insights, and stories"
-      ctaLabel="Search blogs →"
-      ctaHref="/blogs"
-    />
-  );
-
   if (loading) {
     return (
       <>
-        {hero}
+        <PageHeader />
         <div id="blog-section" className={styles.grid}>
           {[0, 1, 2].map((i) => <SkeletonCard key={i} />)}
         </div>
@@ -63,7 +64,7 @@ function HomePage() {
   if (error) {
     return (
       <>
-        {hero}
+        <PageHeader />
         <div id="blog-section">
           <ErrorState message="Something went wrong. Please try again." onRetry={refetch} />
         </div>
@@ -74,7 +75,7 @@ function HomePage() {
   if (posts.length === 0) {
     return (
       <>
-        {hero}
+        <PageHeader />
         <div id="blog-section">
           <EmptyState message="No posts yet. Check back soon." />
         </div>
@@ -86,7 +87,7 @@ function HomePage() {
 
   return (
     <>
-      {hero}
+      <PageHeader />
       <section id="blog-section" className={styles.section}>
         <div className={styles.grid}>
           {posts.map((post) => <BlogCard key={post.id} post={post} />)}
