@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 
 import { useApi } from '@/hooks/useApi';
 import { getBlogs } from '@/api/services/blogService';
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/')({
 });
 
 function PageHeader() {
+  const navigate = useNavigate();
   return (
     <header className={styles.pageHeader}>
       <h1 className={styles.pageTitle}>Blog</h1>
@@ -25,9 +26,9 @@ function PageHeader() {
         <Link to="/blogs" search={{ q: '', category: [], author: [], page: 1 }} className={styles.searchCta}>
           Search blogs →
         </Link>
-        <Link to="/blog/create">
-          <Button variant="primary">Create Blog</Button>
-        </Link>
+        <Button variant="primary" onClick={() => { void navigate({ to: '/blog/create' }); }}>
+          Create Blog
+        </Button>
       </div>
     </header>
   );

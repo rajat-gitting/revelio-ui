@@ -53,10 +53,6 @@ export async function getBlogById(id: number): Promise<BlogPostDto> {
   return response.data;
 }
 
-/**
- * Creates a new blog post via POST /api/blogs.
- * Unwraps the ApiResponse<BlogPostDto> envelope and returns the created BlogPostDto.
- */
 export async function createBlog(payload: CreateBlogPayload): Promise<BlogPostDto> {
   const response = await apiPost<ApiResponse<BlogPostDto>, CreateBlogPayload>(
     ENDPOINTS.BLOGS,

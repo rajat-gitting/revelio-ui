@@ -1,17 +1,3 @@
-/**
- * Tests for CR-36 acceptance criteria:
- *
- * AC-1  – A 'Create Blog' button is visible on the blogs listing page.
- * AC-2  – Clicking 'Create Blog' navigates the user to a dedicated create-blog page.
- * AC-3  – The create-blog page contains fields for title, summary, content, tags, and author.
- * AC-4  – The page contains an 'Add Blog' button that submits the form.
- * AC-5  – Submitting the form without filling in required fields shows a validation error
- *          and does not submit.
- * AC-6  – On successful submission, the new blog is persisted to the backend's data/data.json
- *          (verified by asserting createBlog is called with the correct payload).
- * AC-7  – The newly created blog appears as a card in the blogs listing immediately after saving.
- */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
