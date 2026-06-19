@@ -14,7 +14,7 @@ import {
 
 import { searchPosts, getBlogFilters, getPosts } from '@/api/services/blogService';
 import type { BlogPostDto, BlogSearchResponse, BlogFiltersDto, PagedResponse } from '@/types/api';
-import { Route } from './blogs';
+import { Route } from './index';
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -75,19 +75,19 @@ const makeFilters = (): BlogFiltersDto => ({
 // ---------------------------------------------------------------------------
 // Router helper
 // ---------------------------------------------------------------------------
-const BlogsPage = Route.options.component!;
+const HomePage = Route.options.component!;
 
-function renderBlogsPage(initialSearch = '') {
+function renderHomePage(initialSearch = '') {
   const rootRoute = createRootRoute();
-  const blogsRoute = createRoute({
+  const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/blogs',
+    path: '/',
     validateSearch: Route.options.validateSearch,
-    component: BlogsPage,
+    component: HomePage,
   });
-  const routeTree = rootRoute.addChildren([blogsRoute]);
+  const routeTree = rootRoute.addChildren([indexRoute]);
   const history = createMemoryHistory({
-    initialEntries: [`/blogs${initialSearch}`],
+    initialEntries: [`/${initialSearch}`],
   });
   const router = createRouter({ routeTree, history });
   return { ...render(<RouterProvider router={router} />), router };
@@ -104,7 +104,7 @@ describe('CR-1: Search input is always visible', () => {
   });
 
   it('renders the search input immediately on page load (no click required)', async () => {
-    renderBlogsPage();
+    renderHomePage();
     // Input must be present without any user interaction
     await waitFor(() => expect(screen.getByTestId('search-input')).toBeInTheDocument());
   });
@@ -126,7 +126,7 @@ describe('CR-2: Search with debounce', () => {
 
   it('does NOT call searchPosts before the debounce window elapses', async () => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse([]));
-    renderBlogsPage();
+    renderHomePage();
 
     // Wait for TanStack Router to mount the page and initial fetch to settle
     await act(() => vi.runAllTimersAsync());
@@ -142,7 +142,7 @@ describe('CR-2: Search with debounce', () => {
 
   it('calls searchPosts after the 300 ms debounce', async () => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse([]));
-    renderBlogsPage();
+    renderHomePage();
 
     // Wait for TanStack Router to mount
     await act(() => vi.runAllTimersAsync());
@@ -172,19 +172,19 @@ describe('CR-3: Filter controls', () => {
   });
 
   it('renders Category / Tag multi-select', async () => {
-    renderBlogsPage();
+    renderHomePage();
     await waitFor(() => expect(screen.getByTestId('category-filter')).toBeInTheDocument());
     expect(screen.getByLabelText(/category \/ tag/i)).toBeInTheDocument();
   });
 
   it('renders Author filter', async () => {
-    renderBlogsPage();
+    renderHomePage();
     await waitFor(() => expect(screen.getByTestId('author-filter')).toBeInTheDocument());
     expect(screen.getByLabelText(/author/i)).toBeInTheDocument();
   });
 
   it('populates category options from getBlogFilters', async () => {
-    renderBlogsPage();
+    renderHomePage();
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Tech' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Design' })).toBeInTheDocument();
@@ -192,7 +192,7 @@ describe('CR-3: Filter controls', () => {
   });
 
   it('populates author options from getBlogFilters', async () => {
-    renderBlogsPage();
+    renderHomePage();
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Alice' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Bob' })).toBeInTheDocument();
@@ -210,7 +210,7 @@ describe('CR-4: Combined search + filters', () => {
   });
 
   it('passes both q and category to searchPosts', async () => {
-    renderBlogsPage('?q=hello&category=Tech');
+    renderHomePage('?q=hello&category=Tech');
 
     await waitFor(() => {
       const calls = vi.mocked(searchPosts).mock.calls;
@@ -222,7 +222,7 @@ describe('CR-4: Combined search + filters', () => {
   });
 
   it('passes both q and author to searchPosts', async () => {
-    renderBlogsPage('?q=world&author=Alice');
+    renderHomePage('?q=world&author=Alice');
 
     await waitFor(() => {
       const calls = vi.mocked(searchPosts).mock.calls;
@@ -245,7 +245,7 @@ describe('CR-5: Result count', () => {
   it('displays the total result count returned by the API', async () => {
     // No active filters → getPosts is used; pass 14 as totalElements
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(12), 14, 2));
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => {
       expect(screen.getByTestId('result-count')).toHaveTextContent('14 results');
@@ -254,7 +254,7 @@ describe('CR-5: Result count', () => {
 
   it('displays "1 result" in singular when total is 1', async () => {
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(1), 1, 1));
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => {
       expect(screen.getByTestId('result-count')).toHaveTextContent('1 result');
@@ -263,7 +263,7 @@ describe('CR-5: Result count', () => {
 
   it('displays "0 results" when there are no matches', async () => {
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse([], 0, 0));
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => {
       expect(screen.getByTestId('result-count')).toHaveTextContent('0 results');
@@ -282,7 +282,7 @@ describe('CR-6: Active filter chips', () => {
   });
 
   it('shows a chip for the current search query', async () => {
-    renderBlogsPage('?q=typescript');
+    renderHomePage('?q=typescript');
 
     await waitFor(() => {
       expect(screen.getByTestId('chip-query')).toBeInTheDocument();
@@ -291,7 +291,7 @@ describe('CR-6: Active filter chips', () => {
   });
 
   it('shows a chip for each active category', async () => {
-    renderBlogsPage('?category=Tech');
+    renderHomePage('?category=Tech');
 
     await waitFor(() => {
       expect(screen.getByTestId('chip-category-Tech')).toBeInTheDocument();
@@ -299,7 +299,7 @@ describe('CR-6: Active filter chips', () => {
   });
 
   it('shows a chip for each active author', async () => {
-    renderBlogsPage('?author=Alice');
+    renderHomePage('?author=Alice');
 
     await waitFor(() => {
       expect(screen.getByTestId('chip-author-Alice')).toBeInTheDocument();
@@ -307,7 +307,7 @@ describe('CR-6: Active filter chips', () => {
   });
 
   it('does NOT show the active-filters section when nothing is active', async () => {
-    renderBlogsPage();
+    renderHomePage();
 
     // Wait for results to appear (post-loading)
     await waitFor(() => screen.getByTestId('result-count'));
@@ -326,7 +326,7 @@ describe('CR-7: Clear all and individual chip removal', () => {
   });
 
   it('clicking Clear all removes all chips', async () => {
-    renderBlogsPage('?q=test&category=Tech&author=Alice');
+    renderHomePage('?q=test&category=Tech&author=Alice');
 
     await waitFor(() => {
       expect(screen.getByTestId('chip-query')).toBeInTheDocument();
@@ -340,7 +340,7 @@ describe('CR-7: Clear all and individual chip removal', () => {
   });
 
   it('clicking the × on a query chip removes only that chip', async () => {
-    renderBlogsPage('?q=hello&category=Tech');
+    renderHomePage('?q=hello&category=Tech');
 
     await waitFor(() => {
       expect(screen.getByTestId('chip-query')).toBeInTheDocument();
@@ -356,7 +356,7 @@ describe('CR-7: Clear all and individual chip removal', () => {
   });
 
   it('clicking the × on a category chip removes only that category', async () => {
-    renderBlogsPage('?category=Tech&author=Alice');
+    renderHomePage('?category=Tech&author=Alice');
 
     await waitFor(() => {
       expect(screen.getByTestId('chip-category-Tech')).toBeInTheDocument();
@@ -382,7 +382,7 @@ describe('CR-8: Empty state', () => {
 
   it('shows a friendly empty state when no results are found', async () => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse([], 0));
-    renderBlogsPage('?q=zxqvbnm');
+    renderHomePage('?q=zxqvbnm');
 
     await waitFor(() => {
       expect(screen.getByTestId('empty-state')).toBeInTheDocument();
@@ -392,7 +392,7 @@ describe('CR-8: Empty state', () => {
 
   it('empty state includes a prompt to reset filters', async () => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse([], 0));
-    renderBlogsPage('?q=zxqvbnm');
+    renderHomePage('?q=zxqvbnm');
 
     await waitFor(() => {
       expect(screen.getByTestId('empty-state-reset')).toBeInTheDocument();
@@ -402,7 +402,7 @@ describe('CR-8: Empty state', () => {
   it('empty-state reset button triggers a cleared search', async () => {
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse([], 0));
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3)));
-    renderBlogsPage('?q=zxqvbnm');
+    renderHomePage('?q=zxqvbnm');
 
     await waitFor(() => {
       expect(screen.getByTestId('empty-state-reset')).toBeInTheDocument();
@@ -428,7 +428,7 @@ describe('CR-9: Responsive structure', () => {
   });
 
   it('renders search input, filter controls, result count and post list in one page', async () => {
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('result-count'));
 
@@ -451,7 +451,7 @@ describe('CR-10: Keyboard shortcut "/"', () => {
   });
 
   it('pressing "/" focuses the search input when focus is on body', async () => {
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('search-input'));
 
@@ -465,7 +465,7 @@ describe('CR-10: Keyboard shortcut "/"', () => {
   });
 
   it('pressing "/" when focus is already inside an input does NOT move focus', async () => {
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('search-input'));
 
@@ -494,7 +494,7 @@ describe('CR-11: In-place updates', () => {
   it('re-renders results without unmounting the page container', async () => {
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3)));
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(3)));
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
 
@@ -520,7 +520,7 @@ describe('CR-12: Non-blocking error handling', () => {
     // Without active filters, getPosts is called — make it reject
     vi.mocked(getPosts).mockRejectedValue(new Error('Network error'));
     vi.mocked(searchPosts).mockRejectedValue(new Error('Network error'));
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => {
       expect(screen.getByTestId('error-banner')).toBeInTheDocument();
@@ -532,7 +532,7 @@ describe('CR-12: Non-blocking error handling', () => {
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse(makePosts(3), 3));
     // First call succeeds
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(3), 3));
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
 
@@ -551,7 +551,7 @@ describe('CR-12: Non-blocking error handling', () => {
   it('error banner can be dismissed independently', async () => {
     vi.mocked(getPosts).mockRejectedValue(new Error('Network error'));
     vi.mocked(searchPosts).mockRejectedValue(new Error('Network error'));
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('error-banner'));
 
@@ -594,15 +594,15 @@ describe('useDebounce', () => {
 // ---------------------------------------------------------------------------
 // CR-35: Full-width grid and widescreen breakpoint
 // ---------------------------------------------------------------------------
-describe('CR-35: blogs grid — widescreen breakpoint', () => {
-  it('blogs.module.scss grid adds a 4-column widescreen breakpoint', () => {
-    const scssPath = resolve(dirname(fileURLToPath(import.meta.url)), 'blogs.module.scss');
+describe('CR-35: index grid — widescreen breakpoint', () => {
+  it('index.module.scss grid adds a 4-column widescreen breakpoint', () => {
+    const scssPath = resolve(dirname(fileURLToPath(import.meta.url)), 'index.module.scss');
     const mixinsPath = resolve(dirname(fileURLToPath(import.meta.url)), '../styles/_mixins.scss');
-    const blogsScss = readFileSync(scssPath, 'utf8');
+    const indexScss = readFileSync(scssPath, 'utf8');
     const mixinsScss = readFileSync(mixinsPath, 'utf8');
-    // blogs.module.scss uses the widescreen mixin and sets 4 columns
-    expect(blogsScss).toContain('repeat(4, 1fr)');
-    expect(blogsScss).toContain('m.widescreen');
+    // index.module.scss uses the widescreen mixin and sets 4 columns
+    expect(indexScss).toContain('repeat(4, 1fr)');
+    expect(indexScss).toContain('m.widescreen');
     // The mixin itself defines the 1280px threshold
     expect(mixinsScss).toContain('1280px');
   });

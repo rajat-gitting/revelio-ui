@@ -25,7 +25,7 @@ import {
 
 import { getPosts, getBlogFilters } from '@/api/services/blogService';
 import type { BlogPostDto, PagedResponse } from '@/types/api';
-import { Route } from './blogs';
+import { Route } from './index';
 
 // ---------------------------------------------------------------------------
 // Mocks — use importOriginal so existing exports (searchPosts, getBlogs, etc.)
@@ -63,19 +63,19 @@ const makePagedResponse = (
   size: opts.size ?? 12,
 });
 
-const BlogsPage = Route.options.component!;
+const HomePage = Route.options.component!;
 
-function renderBlogsPage(initialSearch = '') {
+function renderHomePage(initialSearch = '') {
   const rootRoute = createRootRoute();
-  const blogsRoute = createRoute({
+  const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/blogs',
+    path: '/',
     validateSearch: Route.options.validateSearch,
-    component: BlogsPage,
+    component: HomePage,
   });
-  const routeTree = rootRoute.addChildren([blogsRoute]);
+  const routeTree = rootRoute.addChildren([indexRoute]);
   const history = createMemoryHistory({
-    initialEntries: [`/blogs${initialSearch}`],
+    initialEntries: [`/${initialSearch}`],
   });
   const router = createRouter({ routeTree, history });
   return { ...render(<RouterProvider router={router} />), router };
@@ -97,7 +97,7 @@ describe('CR-24 AC1: 12 posts per page', () => {
       makePagedResponse(makePosts(12), { totalElements: 24, totalPages: 2, number: 0 })
     );
 
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => {
       const grid = screen.getByTestId('results-grid');
@@ -117,7 +117,7 @@ describe('CR-24 AC2: Previous button behaviour', () => {
       makePagedResponse(makePosts(12), { totalElements: 24, totalPages: 2, number: 0 })
     );
 
-    renderBlogsPage(); // defaults to ?page=1
+    renderHomePage(); // defaults to ?page=1
 
     await waitFor(() => screen.getByTestId('results-grid'));
 
@@ -135,7 +135,7 @@ describe('CR-24 AC2: Previous button behaviour', () => {
       makePagedResponse(makePosts(12, 13), { totalElements: 24, totalPages: 2, number: 1 })
     );
 
-    renderBlogsPage('?page=2');
+    renderHomePage('?page=2');
 
     await waitFor(() => screen.getByTestId('results-grid'));
 
@@ -154,7 +154,7 @@ describe('CR-24 AC3: Next button behaviour', () => {
       makePagedResponse(makePosts(12, 13), { totalElements: 24, totalPages: 2, number: 1 })
     );
 
-    renderBlogsPage('?page=2');
+    renderHomePage('?page=2');
 
     await waitFor(() => screen.getByTestId('results-grid'));
 
@@ -171,7 +171,7 @@ describe('CR-24 AC3: Next button behaviour', () => {
       makePagedResponse(makePosts(12), { totalElements: 24, totalPages: 2, number: 0 })
     );
 
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
 
@@ -195,7 +195,7 @@ describe('CR-24 AC4: Clicking Next/Previous updates URL', () => {
       makePagedResponse(makePosts(12, 13), { totalElements: 24, totalPages: 2, number: 1 })
     );
 
-    const { router } = renderBlogsPage();
+    const { router } = renderHomePage();
 
     await waitFor(() => screen.getByTestId('next-button'));
 
@@ -213,7 +213,7 @@ describe('CR-24 AC4: Clicking Next/Previous updates URL', () => {
       makePagedResponse(makePosts(12, 13), { totalElements: 24, totalPages: 2, number: 1 })
     );
 
-    const { router } = renderBlogsPage('?page=2');
+    const { router } = renderHomePage('?page=2');
 
     await waitFor(() => screen.getByTestId('prev-button'));
 
@@ -240,7 +240,7 @@ describe('CR-24 AC5: Direct page load by URL', () => {
       makePagedResponse(makePosts(12, 13), { totalElements: 24, totalPages: 2, number: 1 })
     );
 
-    renderBlogsPage('?page=2');
+    renderHomePage('?page=2');
 
     await waitFor(() => {
       // Posts 13–24 should be present
@@ -275,7 +275,7 @@ describe('CR-24 AC6: Browser back/forward navigation', () => {
       .mockResolvedValueOnce(page2Response)  // after Next
       .mockResolvedValueOnce(page1Response); // after Back
 
-    const { router } = renderBlogsPage();
+    const { router } = renderHomePage();
 
     // Wait for page 1 to load
     await waitFor(() => screen.getByTestId('next-button'));
@@ -308,7 +308,7 @@ describe('CR-24 AC7: Loading state', () => {
       })
     );
 
-    renderBlogsPage();
+    renderHomePage();
 
     // While the promise is pending, skeleton grid should be present
     await waitFor(() => {
@@ -334,7 +334,7 @@ describe('CR-24 AC8: Error handling', () => {
       makePagedResponse(makePosts(12), { totalElements: 24, totalPages: 2, number: 0 })
     );
 
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
     expect(screen.getByText('Post 1')).toBeInTheDocument();
@@ -362,7 +362,7 @@ describe('CR-24 AC9: No pagination controls for small result sets', () => {
       makePagedResponse(makePosts(5), { totalElements: 5, totalPages: 1, number: 0 })
     );
 
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
 
@@ -376,7 +376,7 @@ describe('CR-24 AC9: No pagination controls for small result sets', () => {
       makePagedResponse(makePosts(12), { totalElements: 12, totalPages: 1, number: 0 })
     );
 
-    renderBlogsPage();
+    renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
 

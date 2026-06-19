@@ -8,9 +8,9 @@
  *          read time, posted date, and full body
  * AC-3  – Full body contains meaningful prose seeded for every post (body field present)
  * AC-4  – Read time on detail page is derived from body word count (÷200, rounded up)
- * AC-5  – Detail page has a back link to /blogs
+ * AC-5  – Detail page has a back link to Home (/)
  * AC-6  – Navigating directly to /blog/:id loads the correct post data
- * AC-7  – 404 from API → UI renders not-found state with link back to /blogs
+ * AC-7  – 404 from API → UI renders not-found state with link back to Home (/)
  * AC-8  – Unpublished post → API returns 404 → UI renders not-found state
  * AC-9  – GET /api/blogs/:id response envelope: { success, message, data, timestamp }
  *          (contract test — getBlogById unwraps response.data correctly)
@@ -273,19 +273,21 @@ describe('AC-4: Read time derived from body word count', () => {
 });
 
 // ---------------------------------------------------------------------------
-// AC-5: Detail page has a back link to /blogs
+// AC-5: Detail page has a back link to Home (/)
 // ---------------------------------------------------------------------------
-describe('AC-5: Back link navigates to /blogs', () => {
+describe('AC-5: Back link navigates to Home (/)', () => {
   beforeEach(() => {
     vi.mocked(getBlogById).mockResolvedValue(makePost());
   });
 
-  it('renders a back link pointing to /blogs', async () => {
+  it('renders a back link pointing to / (home)', async () => {
     renderDetailPage(1);
     await waitFor(() => {
       const backLink = screen.getByTestId('back-to-blogs');
       expect(backLink).toBeInTheDocument();
-      expect(backLink.getAttribute('href')).toContain('/blogs');
+      expect(backLink.getAttribute('href')).toMatch(/^\//);
+      expect(backLink.getAttribute('href')).not.toContain('/blog');
+      expect(backLink.getAttribute('href')).not.toContain('/blogs');
     });
   });
 
@@ -338,7 +340,7 @@ describe('AC-7: 404 not-found state', () => {
     });
   });
 
-  it('not-found state includes a link back to /blogs', async () => {
+  it('not-found state includes a link back to Home (/)', async () => {
     vi.mocked(getBlogById).mockRejectedValue(
       new ApiRequestError('Not Found', 404, null)
     );
@@ -347,10 +349,11 @@ describe('AC-7: 404 not-found state', () => {
     await waitFor(() => {
       const notFound = screen.getByTestId('blog-detail-not-found');
       const links = notFound.querySelectorAll('a');
-      const blogsLink = Array.from(links).find((a) =>
-        a.getAttribute('href')?.includes('/blogs')
-      );
-      expect(blogsLink).toBeDefined();
+      const homeLink = Array.from(links).find((a) => {
+        const href = a.getAttribute('href') ?? '';
+        return href.startsWith('/') && !href.startsWith('/blog');
+      });
+      expect(homeLink).toBeDefined();
     });
   });
 });
