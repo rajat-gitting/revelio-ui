@@ -12,18 +12,26 @@ export async function getBlogs(page = 0, size = 10): Promise<BlogPostDto[]> {
 }
 
 export async function searchPosts(params: BlogSearchParams): Promise<BlogSearchResponse> {
-  return apiGet<BlogSearchResponse>(ENDPOINTS.BLOGS_SEARCH, { params });
+  // GET /api/blogs/search returns ApiResponse<{ total, page, size, results }>.
+  const response = await apiGet<ApiResponse<BlogSearchResponse>>(ENDPOINTS.BLOGS_SEARCH, { params });
+  return response.data;
 }
 
 export async function getBlogFilters(): Promise<BlogFiltersDto> {
-  return apiGet<BlogFiltersDto>(ENDPOINTS.BLOGS_FILTERS);
+  // GET /api/blogs/filters returns ApiResponse<{ categories, authors }>.
+  const response = await apiGet<ApiResponse<BlogFiltersDto>>(ENDPOINTS.BLOGS_FILTERS);
+  return response.data;
 }
 
-/** Fetches a single page of posts from GET /api/posts using Spring Data Page response shape. */
+/**
+ * Fetches a single page of published posts from GET /api/blogs.
+ * The backend wraps the Spring Data Page in an ApiResponse envelope, so unwrap `data`.
+ */
 export async function getPosts(page = 0, size = 12): Promise<PagedResponse<BlogPostDto>> {
-  return apiGet<PagedResponse<BlogPostDto>>(ENDPOINTS.POSTS, {
+  const response = await apiGet<ApiResponse<PagedResponse<BlogPostDto>>>(ENDPOINTS.BLOGS, {
     params: { page, size },
   });
+  return response.data;
 }
 
 /**

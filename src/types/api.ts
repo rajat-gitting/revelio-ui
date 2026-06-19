@@ -46,7 +46,7 @@ export interface BlogSearchResponse {
   results: BlogPostDto[];
 }
 
-/** Available filter options returned by GET /api/v1/posts/filters */
+/** Available filter options returned by GET /api/blogs/filters */
 export interface BlogFiltersDto {
   authors: BlogAuthorDto[];
   categories: string[];
