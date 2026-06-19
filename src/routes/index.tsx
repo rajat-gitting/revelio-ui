@@ -8,6 +8,7 @@ import BlogCard from '@/components/BlogCard';
 import SkeletonCard from '@/components/SkeletonCard';
 import EmptyState from '@/components/EmptyState';
 import ErrorState from '@/components/ErrorState';
+import Button from '@/components/Button/Button';
 import styles from '@/routes/index.module.scss';
 
 const PAGE_SIZE = 10;
@@ -20,9 +21,14 @@ function PageHeader() {
   return (
     <header className={styles.pageHeader}>
       <h1 className={styles.pageTitle}>Blog</h1>
-      <Link to="/blogs" search={{ q: '', category: [], author: [], page: 1 }} className={styles.searchCta}>
-        Search blogs →
-      </Link>
+      <div className={styles.headerActions}>
+        <Link to="/blogs" search={{ q: '', category: [], author: [], page: 1 }} className={styles.searchCta}>
+          Search blogs →
+        </Link>
+        <Link to="/blog/create">
+          <Button variant="primary">Create Blog</Button>
+        </Link>
+      </div>
     </header>
   );
 }

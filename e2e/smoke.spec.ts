@@ -80,7 +80,7 @@ async function stubApi(page: Page): Promise<void> {
   );
 }
 
-const ROUTES = ['/', '/blogs', '/about', '/blog/1'];
+const ROUTES = ['/', '/blogs', '/about', '/blog/1', '/blog/create'];
 
 for (const path of ROUTES) {
   test(`renders ${path} without crashing`, async ({ page }) => {

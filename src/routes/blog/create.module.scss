@@ -1,0 +1,85 @@
+@use '../../styles/variables' as *;
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $space-2xl;
+}
+
+.heading {
+  font-family: $font-family-heading;
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $color-text;
+  margin: 0 0 $space-2xl;
+  line-height: $line-height-tight;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xl;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  letter-spacing: $letter-spacing-wide;
+}
+
+.input,
+.textarea {
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  color: $color-text;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  padding: $space-md $space-lg;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-border-focus;
+    box-shadow: 0 0 0 3px $color-focus-glow;
+  }
+
+  &::placeholder {
+    color: $color-text-muted;
+  }
+}
+
+.textarea {
+  resize: vertical;
+  line-height: $line-height-relaxed;
+}
+
+.error {
+  font-size: $font-size-sm;
+  color: $color-error;
+}
+
+.submitError {
+  background: rgba($color-error, 0.12);
+  border: 1px solid rgba($color-error, 0.35);
+  border-radius: $radius-md;
+  color: $color-error;
+  font-size: $font-size-sm;
+  padding: $space-md $space-lg;
+  margin-bottom: $space-lg;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: $space-md;
+}
