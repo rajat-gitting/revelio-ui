@@ -19,6 +19,13 @@
   line-height: $line-height-tight;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: $space-lg;
+  flex-wrap: wrap;
+}
+
 .searchCta {
   @include m.button-base;
   background: $color-primary;
