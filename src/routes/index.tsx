@@ -44,8 +44,8 @@ function HomePage() {
     <HeroSection
       headline="Welcome to Our Blog"
       subheading="Discover articles, insights, and stories"
-      ctaLabel="Explore Articles"
-      ctaHref="#blog-section"
+      ctaLabel="Search blogs →"
+      ctaHref="/blogs"
     />
   );
 

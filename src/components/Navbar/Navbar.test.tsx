@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import {
   createMemoryHistory,
   createRootRoute,
+  createRoute,
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router';
@@ -15,7 +16,12 @@ function renderNavbarAt(path: string) {
   const rootRoute = createRootRoute({
     component: Navbar,
   });
-  const routeTree = rootRoute.addChildren([]);
+  const blogsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/blogs',
+    component: () => null,
+  });
+  const routeTree = rootRoute.addChildren([blogsRoute]);
   const router = createRouter({
     routeTree,
     history: createMemoryHistory({ initialEntries: [path] }),
@@ -44,5 +50,21 @@ describe('Navbar', () => {
     expect(
       await screen.findByRole('navigation', { name: 'Main navigation' }),
     ).toBeInTheDocument();
+  });
+
+  it('renders a Blogs link pointing to /blogs', async () => {
+    renderNavbarAt('/');
+
+    const blogsLink = await screen.findByRole('link', { name: 'Blogs' });
+    expect(blogsLink).toBeInTheDocument();
+    // href includes search params serialised by TanStack Router
+    expect(blogsLink.getAttribute('href')).toMatch(/^\/blogs/);
+  });
+
+  it('applies the active class to the Blogs link when the current route is /blogs', async () => {
+    renderNavbarAt('/blogs?q=&category=%5B%5D&author=%5B%5D&page=1');
+
+    const blogsLink = await screen.findByRole('link', { name: 'Blogs' });
+    expect(blogsLink).toHaveClass(styles.active!);
   });
 });

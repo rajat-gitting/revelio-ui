@@ -578,7 +578,7 @@ describe('HeroSection integration with HomePage', () => {
       screen.getByText('Discover articles, insights, and stories'),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Explore Articles' }),
+      screen.getByRole('link', { name: 'Search blogs →' }),
     ).toBeInTheDocument();
   });
 
