@@ -18,6 +18,12 @@
   }
 }
 
+@mixin widescreen {
+  @media (min-width: 1280px) {
+    @content;
+  }
+}
+
 @mixin card {
   background: $color-surface;
   border: 1px solid $color-border;

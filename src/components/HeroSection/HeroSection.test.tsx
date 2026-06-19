@@ -92,27 +92,27 @@ const HERO_GRADIENT_DARK = '#1e40af';
 // ---------------------------------------------------------------------------
 // Criterion 1 — Hero is the first visible element on the homepage, above blog cards
 // ---------------------------------------------------------------------------
-describe('Criterion 1 — Hero renders above blog cards', () => {
+describe('Criterion 1 — Page header renders above blog cards', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
   });
 
-  it('hero section appears before the blog-section element in the DOM', async () => {
+  it('page header appears before the blog-section element in the DOM', async () => {
     const { container } = renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByTestId('hero-section')).toBeInTheDocument();
+      expect(container.querySelector('header')).toBeInTheDocument();
     });
 
-    const hero = container.querySelector('[data-testid="hero-section"]')!;
+    const header = container.querySelector('header')!;
     const blogSection = container.querySelector('#blog-section')!;
 
-    expect(hero).toBeInTheDocument();
+    expect(header).toBeInTheDocument();
     expect(blogSection).toBeInTheDocument();
 
-    // compareDocumentPosition: DOCUMENT_POSITION_FOLLOWING (4) means blogSection follows hero
-    expect(hero.compareDocumentPosition(blogSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // compareDocumentPosition: DOCUMENT_POSITION_FOLLOWING (4) means blogSection follows header
+    expect(header.compareDocumentPosition(blogSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 
@@ -461,21 +461,21 @@ describe('Criterion 9 — Vertical spacing gap between hero and blog grid', () =
     expect(scss).toContain('margin-top: $space-2xl');
   });
 
-  it('renders hero before blog-section with blog-section having a DOM separator', async () => {
+  it('renders page header before blog-section with blog-section having a DOM separator', async () => {
     vi.clearAllMocks();
     vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
 
     const { container } = renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByTestId('hero-section')).toBeInTheDocument();
+      expect(container.querySelector('header')).toBeInTheDocument();
     });
 
-    const hero = container.querySelector('[data-testid="hero-section"]')!;
+    const header = container.querySelector('header')!;
     const blogSection = container.querySelector('#blog-section')!;
 
-    // blog-section follows hero in the DOM
-    expect(hero.compareDocumentPosition(blogSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // blog-section follows page header in the DOM
+    expect(header.compareDocumentPosition(blogSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 
@@ -541,14 +541,14 @@ describe('Criterion 10 — Keyboard accessibility', () => {
     expect(scss).toMatch(/outline:.*solid/);
   });
 
-  it('hero section renders inside the homepage DOM correctly alongside blog content', async () => {
+  it('page header renders inside the homepage DOM correctly alongside blog content', async () => {
     vi.clearAllMocks();
     vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
 
-    renderHomePage();
+    const { container } = renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByTestId('hero-section')).toBeInTheDocument();
+      expect(container.querySelector('header')).toBeInTheDocument();
     });
 
     // Blog card for "Test Post" should also be present
@@ -557,41 +557,39 @@ describe('Criterion 10 — Keyboard accessibility', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Integration: homepage renders hero + blog cards together
+// Integration: homepage renders simple header + blog cards together (CR-35)
 // ---------------------------------------------------------------------------
-describe('HeroSection integration with HomePage', () => {
+describe('HomePage simple header integration (CR-35)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
   });
 
-  it('homepage renders HeroSection with correct default props', async () => {
+  it('homepage renders a simple page header (no hero banner) with Search blogs → CTA', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'Welcome to Our Blog',
-      );
+      expect(screen.getByRole('link', { name: 'Search blogs →' })).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText('Discover articles, insights, and stories'),
-    ).toBeInTheDocument();
+    // The full hero banner texts are gone
+    expect(screen.queryByText('Welcome to Our Blog')).not.toBeInTheDocument();
+    expect(screen.queryByText('Discover articles, insights, and stories')).not.toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Search blogs →' }),
     ).toBeInTheDocument();
   });
 
-  it('homepage renders hero during loading state', async () => {
+  it('homepage renders simple header during loading state', async () => {
     vi.mocked(getBlogs).mockImplementation(
       () => new Promise(() => undefined), // never resolves
     );
 
-    renderHomePage();
+    const { container } = renderHomePage();
 
-    // Hero is rendered immediately (before data loads)
+    // Simple header is rendered immediately (before data loads)
     await waitFor(() => {
-      expect(screen.getByTestId('hero-section')).toBeInTheDocument();
+      expect(container.querySelector('header')).toBeInTheDocument();
     });
   });
 });

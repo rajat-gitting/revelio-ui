@@ -1,3 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import {
@@ -584,5 +588,22 @@ describe('useDebounce', () => {
     await hookAct(() => vi.runAllTimersAsync());
     expect(result.current).toBe('b');
     vi.useRealTimers();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CR-35: Full-width grid and widescreen breakpoint
+// ---------------------------------------------------------------------------
+describe('CR-35: blogs grid — widescreen breakpoint', () => {
+  it('blogs.module.scss grid adds a 4-column widescreen breakpoint', () => {
+    const scssPath = resolve(dirname(fileURLToPath(import.meta.url)), 'blogs.module.scss');
+    const mixinsPath = resolve(dirname(fileURLToPath(import.meta.url)), '../styles/_mixins.scss');
+    const blogsScss = readFileSync(scssPath, 'utf8');
+    const mixinsScss = readFileSync(mixinsPath, 'utf8');
+    // blogs.module.scss uses the widescreen mixin and sets 4 columns
+    expect(blogsScss).toContain('repeat(4, 1fr)');
+    expect(blogsScss).toContain('m.widescreen');
+    // The mixin itself defines the 1280px threshold
+    expect(mixinsScss).toContain('1280px');
   });
 });

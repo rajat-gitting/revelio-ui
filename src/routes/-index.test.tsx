@@ -80,21 +80,69 @@ describe('HomePage styles', () => {
   });
 });
 
-describe('HomePage hero CTA — CR-34', () => {
+// CR-35: hero removed, simple header with CTA
+describe('HomePage simple header — CR-35', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getBlogs).mockResolvedValue(mockBlogPosts);
   });
 
-  it('hero CTA is labelled "Search blogs →" and links to /blogs', async () => {
+  it('does not render the Welcome to Our Blog hero banner', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByTestId('hero-section')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Search blogs →' })).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('Welcome to Our Blog')).not.toBeInTheDocument();
+    expect(screen.queryByText('Discover articles, insights, and stories')).not.toBeInTheDocument();
+  });
+
+  it('renders a simple page header (not the full hero)', async () => {
+    const { container } = renderHomePage();
+
+    await waitFor(() => {
+      expect(container.querySelector('header')).toBeInTheDocument();
+    });
+
+    const header = container.querySelector('header');
+    expect(header).toBeInTheDocument();
+    // The simple header should not carry the hero data-testid
+    expect(header).not.toHaveAttribute('data-testid', 'hero-section');
+  });
+
+  it('CTA is labelled "Search blogs →" and links to /blogs', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Search blogs →' })).toBeInTheDocument();
     });
 
     const cta = screen.getByRole('link', { name: 'Search blogs →' });
     expect(cta).toBeInTheDocument();
-    expect(cta).toHaveAttribute('href', '/blogs');
+    // TanStack Router may append search params; the href must start with /blogs
+    const href = cta.getAttribute('href') ?? '';
+    expect(href.startsWith('/blogs')).toBe(true);
+  });
+
+  it('grid uses full width — Layout.module.scss has no max-width on .main', () => {
+    const layoutScssPath = resolve(
+      dirname(fileURLToPath(import.meta.url)),
+      '../components/Layout/Layout.module.scss'
+    );
+    const scss = readFileSync(layoutScssPath, 'utf8');
+    expect(scss).not.toMatch(/max-width:\s*\$breakpoint-desktop/);
+  });
+
+  it('index grid adds a 4-column widescreen breakpoint', () => {
+    const scssPath = resolve(dirname(fileURLToPath(import.meta.url)), 'index.module.scss');
+    const mixinsPath = resolve(dirname(fileURLToPath(import.meta.url)), '../styles/_mixins.scss');
+    const indexScss = readFileSync(scssPath, 'utf8');
+    const mixinsScss = readFileSync(mixinsPath, 'utf8');
+    // index.module.scss uses the widescreen mixin and sets 4 columns
+    expect(indexScss).toContain('repeat(4, 1fr)');
+    expect(indexScss).toContain('m.widescreen');
+    // The mixin itself defines the 1280px threshold
+    expect(mixinsScss).toContain('1280px');
   });
 });
