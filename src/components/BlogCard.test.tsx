@@ -1,6 +1,7 @@
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   createMemoryHistory,
   createRootRoute,
@@ -23,11 +24,16 @@ function renderWithRouter(ui: React.ReactElement) {
     path: '/blog/$id',
     component: () => null,
   });
+  const blogEditRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/blog/$id/edit',
+    component: () => null,
+  });
   const router = createRouter({
-    routeTree: rootRoute.addChildren([indexRoute, blogDetailRoute]),
+    routeTree: rootRoute.addChildren([indexRoute, blogDetailRoute, blogEditRoute]),
     history: createMemoryHistory({ initialEntries: ['/'] }),
   });
-  return render(<RouterProvider router={router} />);
+  return { ...render(<RouterProvider router={router} />), router };
 }
 
 const mockPost = {
@@ -123,6 +129,24 @@ describe('BlogCard', () => {
     renderWithRouter(<BlogCard post={{ ...mockPost, excerpt: buildExcerpt(201) }} />);
     await waitFor(() => {
       expect(screen.getByText('2 min read')).toBeInTheDocument();
+    });
+  });
+
+  it('shows an Edit button on the card', async () => {
+    renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-blog-btn')).toBeInTheDocument();
+    });
+  });
+
+  it('clicking Edit navigates to the edit route without following the card link', async () => {
+    const { router } = renderWithRouter(<BlogCard post={mockPost} />);
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-blog-btn')).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByTestId('edit-blog-btn'));
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/blog/42/edit');
     });
   });
 });

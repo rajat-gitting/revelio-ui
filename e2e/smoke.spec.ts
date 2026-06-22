@@ -44,10 +44,16 @@ const apiResponse = (data: unknown) => ({
 });
 
 async function stubApi(page: Page): Promise<void> {
-  // GET /api/blogs/:id → ApiResponse<BlogPostDto>
+  // PUT /api/blogs/:id → ApiResponse<BlogPostDto>
   await page.route(/\/blogs\/\d+/, (route) => {
     const url = route.request().url();
     const id = parseInt(url.split('/blogs/')[1]?.split('?')[0] ?? '1', 10);
+    if (route.request().method() === 'PUT') {
+      const found = POSTS.find((p) => p.id === id);
+      route.fulfill({ json: apiResponse(found ?? POSTS[0]) });
+      return;
+    }
+    // GET /api/blogs/:id → ApiResponse<BlogPostDto>
     const found = POSTS.find((p) => p.id === id);
     if (found) {
       route.fulfill({ json: apiResponse(found) });
@@ -80,7 +86,7 @@ async function stubApi(page: Page): Promise<void> {
   );
 }
 
-const ROUTES = ['/', '/blogs', '/about', '/blog/1', '/blog/create'];
+const ROUTES = ['/', '/blogs', '/about', '/blog/1', '/blog/create', '/blog/1/edit'];
 
 for (const path of ROUTES) {
   test(`renders ${path} without crashing`, async ({ page }) => {

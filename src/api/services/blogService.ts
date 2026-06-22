@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from '@/api/client';
+import { apiGet, apiPost, apiPut } from '@/api/client';
 import { ENDPOINTS } from '@/api/endpoints';
 import type { ApiResponse, BlogAuthorDto, BlogFiltersDto, BlogPostDto, BlogSearchParams, BlogSearchResponse, PagedResponse } from '@/types/api';
 
@@ -9,6 +9,15 @@ export interface CreateBlogPayload {
   tags: string[];
   author: BlogAuthorDto;
   coverImageUrl: string | null;
+}
+
+export interface UpdateBlogPayload {
+  title?: string;
+  excerpt?: string;
+  body?: string;
+  tags?: string[];
+  author?: { name: string; avatarUrl?: string | null };
+  coverImageUrl?: string | null;
 }
 
 export async function getBlogs(page = 0, size = 10): Promise<BlogPostDto[]> {
@@ -56,6 +65,14 @@ export async function getBlogById(id: number): Promise<BlogPostDto> {
 export async function createBlog(payload: CreateBlogPayload): Promise<BlogPostDto> {
   const response = await apiPost<ApiResponse<BlogPostDto>, CreateBlogPayload>(
     ENDPOINTS.BLOGS,
+    payload
+  );
+  return response.data;
+}
+
+export async function updateBlog(id: number, payload: UpdateBlogPayload): Promise<BlogPostDto> {
+  const response = await apiPut<ApiResponse<BlogPostDto>, UpdateBlogPayload>(
+    `${ENDPOINTS.BLOG_BY_ID}/${id}`,
     payload
   );
   return response.data;

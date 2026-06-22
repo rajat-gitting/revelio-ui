@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import styles from './BlogCard.module.scss';
 
 interface Author {
@@ -54,6 +54,13 @@ function BlogCard({ post }: BlogCardProps): React.JSX.Element {
   const displayTags = post.tags.slice(0, 3);
   const extraTags = post.tags.length - 3;
   const readingTime = getReadingTime(post.excerpt);
+  const navigate = useNavigate();
+
+  function handleEditClick(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    void navigate({ to: '/blog/$id/edit', params: { id: String(post.id) } });
+  }
 
   return (
     <Link
@@ -86,6 +93,16 @@ function BlogCard({ post }: BlogCardProps): React.JSX.Element {
           <time className={styles['blog-card__timestamp']} dateTime={post.publishedAt}>
             {formatTimestamp(post.publishedAt)}
           </time>
+        </div>
+        <div className={styles['blog-card__actions']}>
+          <button
+            type="button"
+            className={styles['blog-card__edit-btn']}
+            onClick={handleEditClick}
+            data-testid="edit-blog-btn"
+          >
+            Edit
+          </button>
         </div>
       </div>
     </Link>
