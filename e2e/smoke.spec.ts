@@ -116,3 +116,27 @@ test('the blog list actually shows posts from the API', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await expect(page.getByText('Smoke Post 1')).toBeVisible();
 });
+
+/**
+ * CR-38 interaction: clicking Edit on a card must open the edit FORM, not the
+ * blog detail page. This is a real-browser test on purpose — the unit test
+ * builds a flat router by hand and so cannot catch that `/blog/$id/edit` was
+ * registered as a child of `/blog/$id` (which renders no <Outlet/>), making the
+ * edit route fall through to the detail page. Only a real route match catches it.
+ */
+test('clicking Edit on a card opens the edit form, not the detail page', async ({
+  page,
+}) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  await page.getByTestId('edit-blog-btn').first().click();
+  await page.waitForLoadState('networkidle');
+
+  await expect(page).toHaveURL(/\/blog\/\d+\/edit$/);
+  // The edit page renders this container; the detail page does not.
+  await expect(page.getByTestId('edit-blog-page')).toBeVisible();
+  // And it must be the Update form, pre-filled — not a fresh Create form.
+  await expect(page.getByRole('button', { name: 'Update' })).toBeVisible();
+  await expect(page.getByTestId('field-title')).toHaveValue('Smoke Post 1');
+});

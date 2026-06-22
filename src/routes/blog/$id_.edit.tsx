@@ -6,7 +6,7 @@ import { useApi } from '@/hooks/useApi';
 import Button from '@/components/Button/Button';
 import styles from './create.module.scss';
 
-export const Route = createFileRoute('/blog/$id/edit')({
+export const Route = createFileRoute('/blog/$id_/edit')({
   component: EditBlogPage,
 });
 

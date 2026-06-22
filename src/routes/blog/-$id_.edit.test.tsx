@@ -12,7 +12,7 @@ import {
 import { getBlogById, updateBlog } from '@/api/services/blogService';
 import type { BlogPostDto } from '@/types/api';
 import { Route as IndexRoute } from '@/routes/index';
-import { Route as EditRoute } from '@/routes/blog/$id.edit';
+import { Route as EditRoute } from '@/routes/blog/$id_.edit';
 
 vi.mock('@/api/services/blogService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/services/blogService')>()),
