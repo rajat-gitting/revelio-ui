@@ -49,6 +49,16 @@ export default defineConfig({
     env: {
       VITE_API_BASE_URL: 'http://localhost:8080/api',
     },
+    coverage: {
+      provider: 'v8',
+      include: ['src/**'],
+      exclude: [
+        'src/routeTree.gen.ts',
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+        'src/types/**',
+      ],
+    },
     css: {
       modules: {
         classNameStrategy: 'non-scoped',

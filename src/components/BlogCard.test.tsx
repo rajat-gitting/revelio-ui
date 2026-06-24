@@ -125,4 +125,25 @@ describe('BlogCard', () => {
       expect(screen.getByText('2 min read')).toBeInTheDocument();
     });
   });
+
+  it('renders without crashing when publishedAt is an invalid date string', async () => {
+    renderWithRouter(<BlogCard post={{ ...mockPost, publishedAt: 'not-a-date' }} />);
+    await waitFor(() => {
+      expect(screen.getByText('Design Review')).toBeInTheDocument();
+    });
+    // The timestamp element is present but the catch block returns ''
+    const time = screen.getByRole('time');
+    expect(time).toBeInTheDocument();
+  });
+
+  it('renders gracefully when author name is an empty string', async () => {
+    renderWithRouter(
+      <BlogCard post={{ ...mockPost, author: { name: '', avatarUrl: null } }} />
+    );
+    await waitFor(() => {
+      expect(screen.getByText('Design Review')).toBeInTheDocument();
+    });
+    // empty name → getInitials returns '' → initials div is rendered but empty
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
 });

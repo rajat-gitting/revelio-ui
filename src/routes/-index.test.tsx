@@ -174,3 +174,36 @@ describe('HomePage CR-37 — search/filter on Home page', () => {
     expect(mixinsScss).toContain('1280px');
   });
 });
+
+// ---------------------------------------------------------------------------
+// validateSearch — edge-case coercions for single-string category / author
+// ---------------------------------------------------------------------------
+describe('validateSearch coercions', () => {
+  // Cast to a plain callable so TypeScript is happy — the underlying implementation
+  // is a function even though the TanStack Router type is a union with non-callable members.
+  interface HomeSearch { q: string; category: string[]; author: string[]; page: number }
+  const validate = Route.options.validateSearch as unknown as (
+    raw: Record<string, unknown>
+  ) => HomeSearch;
+
+  it('wraps a single string category into an array', () => {
+    const result = validate({ category: 'Tech', author: [], q: '', page: 1 });
+    expect(result.category).toEqual(['Tech']);
+  });
+
+  it('wraps a single string author into an array', () => {
+    const result = validate({ category: [], author: 'Alice', q: '', page: 1 });
+    expect(result.author).toEqual(['Alice']);
+  });
+
+  it('keeps array category as-is', () => {
+    const result = validate({ category: ['React', 'Node'], author: [], q: '', page: 1 });
+    expect(result.category).toEqual(['React', 'Node']);
+  });
+
+  it('defaults to empty arrays when category / author are absent', () => {
+    const result = validate({ q: '', page: 1 });
+    expect(result.category).toEqual([]);
+    expect(result.author).toEqual([]);
+  });
+});
