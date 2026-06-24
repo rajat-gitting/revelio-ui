@@ -89,7 +89,7 @@ function CreateBlogPage() {
         },
         coverImageUrl: form.coverImageUrl.trim() || null,
       });
-      await navigate({ to: '/', search: { q: '', category: [], author: [], page: 1 } });
+      await navigate({ to: '/', search: { q: '', page: 1 } });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create blog post.';
       setSubmitError(message);

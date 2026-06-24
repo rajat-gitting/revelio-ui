@@ -579,12 +579,12 @@ describe('HomePage simple header integration (CR-35)', () => {
     vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
-  it('homepage renders a simple page header (no hero banner) with inline search bar', async () => {
+  it('homepage renders a simple page header (no hero banner) with search icon in header', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      // CR-37: search is now inline on the home page (no separate 'Search blogs →' link)
-      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+      // CR-41: search is now a collapsible icon in the header; icon button is always visible
+      expect(screen.getByTestId('search-icon-button')).toBeInTheDocument();
     });
 
     // The full hero banner texts are gone
@@ -592,6 +592,8 @@ describe('HomePage simple header integration (CR-35)', () => {
     expect(screen.queryByText('Discover articles, insights, and stories')).not.toBeInTheDocument();
     // No separate 'Search blogs' link needed since search is inline
     expect(screen.queryByRole('link', { name: 'Search blogs →' })).not.toBeInTheDocument();
+    // No standalone search input visible on initial load (CR-41)
+    expect(screen.queryByTestId('search-input')).not.toBeInTheDocument();
   });
 
   it('homepage renders simple header during loading state', async () => {

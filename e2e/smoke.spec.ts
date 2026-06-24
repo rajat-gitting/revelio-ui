@@ -110,3 +110,31 @@ test('the blog list actually shows posts from the API', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await expect(page.getByText('Smoke Post 1')).toBeVisible();
 });
+
+// CR-41: collapsible header search
+test('CR-41 — search icon button is visible and clicking it reveals a search input', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  // No standalone search input on initial load
+  await expect(page.getByTestId('search-input')).toHaveCount(0);
+
+  // Search icon is present
+  const searchIcon = page.getByTestId('search-icon-button');
+  await expect(searchIcon).toBeVisible();
+
+  // Click the icon — input appears
+  await searchIcon.click();
+  await expect(page.getByTestId('search-input')).toBeVisible();
+});
+
+test('CR-41 — Create Blog button remains visible while search input is expanded', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  await page.getByTestId('search-icon-button').click();
+  await expect(page.getByTestId('search-input')).toBeVisible();
+
+  // Create Blog button is still visible
+  await expect(page.getByRole('button', { name: /create blog/i })).toBeVisible();
+});

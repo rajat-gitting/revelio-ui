@@ -3,9 +3,9 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { createMemoryHistory, createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router';
-import { getPosts, getBlogFilters } from '@/api/services/blogService';
+import { getPosts, searchPosts } from '@/api/services/blogService';
 import type { BlogPostDto, PagedResponse } from '@/types/api';
 import { Route } from './index';
 import styles from '@/routes/index.module.scss';
@@ -13,7 +13,7 @@ import styles from '@/routes/index.module.scss';
 vi.mock('@/api/services/blogService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/services/blogService')>()),
   getPosts: vi.fn(),
-  getBlogFilters: vi.fn(),
+  searchPosts: vi.fn(),
 }));
 
 const mockBlogPosts: BlogPostDto[] = [
@@ -59,7 +59,6 @@ describe('HomePage styles', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
-    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
   it('applies the grid CSS module class when posts are loaded', async () => {
@@ -89,19 +88,18 @@ describe('HomePage styles', () => {
   });
 });
 
-// CR-37: Home page has search/filter inline; no "Search blogs →" link
-describe('HomePage CR-37 — search/filter on Home page', () => {
+// CR-37: Home page has search inline in header; no "Search blogs →" link
+describe('HomePage CR-37 — search on Home page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
-    vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
   it('does not render a "Search blogs" link', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+      expect(screen.getByTestId('search-icon-button')).toBeInTheDocument();
     });
 
     expect(screen.queryByRole('link', { name: /search blogs/i })).not.toBeInTheDocument();
@@ -128,31 +126,6 @@ describe('HomePage CR-37 — search/filter on Home page', () => {
     });
   });
 
-  it('renders the search input above the blog card grid', async () => {
-    renderHomePage();
-
-    await waitFor(() => {
-      expect(screen.getByTestId('search-input')).toBeInTheDocument();
-      expect(screen.getByTestId('results-grid')).toBeInTheDocument();
-    });
-  });
-
-  it('renders a Category / Tag filter', async () => {
-    renderHomePage();
-
-    await waitFor(() => {
-      expect(screen.getByTestId('category-filter')).toBeInTheDocument();
-    });
-  });
-
-  it('renders an Author filter', async () => {
-    renderHomePage();
-
-    await waitFor(() => {
-      expect(screen.getByTestId('author-filter')).toBeInTheDocument();
-    });
-  });
-
   it('grid uses full width — Layout.module.scss has no max-width on .main', () => {
     const layoutScssPath = resolve(
       dirname(fileURLToPath(import.meta.url)),
@@ -176,34 +149,166 @@ describe('HomePage CR-37 — search/filter on Home page', () => {
 });
 
 // ---------------------------------------------------------------------------
-// validateSearch — edge-case coercions for single-string category / author
+// CR-41: Collapsible header search, no standalone search/filter rows
+// ---------------------------------------------------------------------------
+describe('CR-41 — collapsible header search', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getPosts).mockResolvedValue(makePagedResponse(mockBlogPosts));
+    vi.mocked(searchPosts).mockResolvedValue({ total: 1, page: 0, size: 12, results: mockBlogPosts });
+  });
+
+  // AC1: On initial page load, no standalone search input row is visible below the page header.
+  it('does not render a standalone search input on initial load', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('results-grid')).toBeInTheDocument();
+    });
+
+    // search-input only appears after icon click
+    expect(screen.queryByTestId('search-input')).not.toBeInTheDocument();
+  });
+
+  // AC2: On initial page load, no category or author filter row is visible.
+  it('does not render category or author filter rows on initial load', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('results-grid')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('category-filter')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('author-filter')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('filter-row')).not.toBeInTheDocument();
+  });
+
+  // AC3: The page header shows a search icon button alongside the Create Blog button.
+  it('renders a search icon button in the page header', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-icon-button')).toBeInTheDocument();
+    });
+
+    // Both the icon button and Create Blog are in the header
+    expect(screen.getByRole('button', { name: /create blog/i })).toBeInTheDocument();
+  });
+
+  // AC4: Clicking the search icon reveals a text input inside the header.
+  it('clicking the search icon reveals a text input', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-icon-button')).toBeInTheDocument();
+    });
+
+    // Initially no input
+    expect(screen.queryByTestId('search-input')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('search-icon-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    });
+  });
+
+  // AC5: Typing in the expanded header input filters the blog list.
+  it('typing in the header input triggers search (calls searchPosts)', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-icon-button')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('search-icon-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'hello' } });
+
+    // After debounce (300ms) the URL param updates and triggers searchPosts
+    await waitFor(() => {
+      expect(vi.mocked(searchPosts)).toHaveBeenCalled();
+    }, { timeout: 1000 });
+  });
+
+  // AC6: When the search input is cleared and collapsed, the full unfiltered blog list is shown.
+  it('clearing the input collapses the search and shows unfiltered list', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-icon-button')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('search-icon-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    });
+
+    // Type then clear
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'hello' } });
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: '' } });
+    // Blur with empty input triggers collapse
+    fireEvent.blur(screen.getByTestId('search-input'));
+
+    // After collapse the input should be gone and getPosts should have been called
+    await waitFor(() => {
+      expect(screen.queryByTestId('search-input')).not.toBeInTheDocument();
+    }, { timeout: 500 });
+
+    expect(vi.mocked(getPosts)).toHaveBeenCalled();
+  });
+
+  // AC7: The Create Blog button remains visible and clickable while the search input is expanded.
+  it('Create Blog button is visible while search is expanded', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-icon-button')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('search-icon-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: /create blog/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create blog/i })).not.toBeDisabled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// validateSearch — edge-case coercions (category/author removed from schema)
 // ---------------------------------------------------------------------------
 describe('validateSearch coercions', () => {
-  // Cast to a plain callable so TypeScript is happy — the underlying implementation
-  // is a function even though the TanStack Router type is a union with non-callable members.
-  interface HomeSearch { q: string; category: string[]; author: string[]; page: number }
+  // Cast to a plain callable so TypeScript is happy
+  interface HomeSearch { q: string; page: number }
   const validate = Route.options.validateSearch as unknown as (
     raw: Record<string, unknown>
   ) => HomeSearch;
 
-  it('wraps a single string category into an array', () => {
-    const result = validate({ category: 'Tech', author: [], q: '', page: 1 });
-    expect(result.category).toEqual(['Tech']);
+  it('defaults q to empty string when absent', () => {
+    const result = validate({ page: 1 });
+    expect(result.q).toBe('');
   });
 
-  it('wraps a single string author into an array', () => {
-    const result = validate({ category: [], author: 'Alice', q: '', page: 1 });
-    expect(result.author).toEqual(['Alice']);
+  it('preserves the q value', () => {
+    const result = validate({ q: 'hello', page: 1 });
+    expect(result.q).toBe('hello');
   });
 
-  it('keeps array category as-is', () => {
-    const result = validate({ category: ['React', 'Node'], author: [], q: '', page: 1 });
-    expect(result.category).toEqual(['React', 'Node']);
+  it('defaults page to 1 when absent', () => {
+    const result = validate({});
+    expect(result.page).toBe(1);
   });
 
-  it('defaults to empty arrays when category / author are absent', () => {
-    const result = validate({ q: '', page: 1 });
-    expect(result.category).toEqual([]);
-    expect(result.author).toEqual([]);
+  it('clamps page to minimum 1', () => {
+    const result = validate({ page: 0 });
+    expect(result.page).toBe(1);
   });
 });
