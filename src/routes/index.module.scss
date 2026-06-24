@@ -43,59 +43,36 @@
 }
 
 // ============================================================================
-// Search & Filter Controls
+// Header Search
 // ============================================================================
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: $space-lg;
-  margin-bottom: $space-xl;
-}
-
-.searchRow {
-  display: flex;
+.searchIconButton {
+  display: inline-flex;
   align-items: center;
-  gap: $space-md;
-  flex-wrap: wrap;
-
-  @include m.mobile {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.searchInputWrapper {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-
-  @include m.mobile {
-    min-width: 0;
-    width: 100%;
-  }
-}
-
-.searchIcon {
-  position: absolute;
-  left: $space-md;
-  top: 50%;
-  transform: translateY(-50%);
+  justify-content: center;
+  background: none;
+  border: 1px solid $color-border-light;
+  border-radius: $radius-md;
   color: $color-text-muted;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
+  cursor: pointer;
+  padding: $space-sm;
+  transition: color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    color: $color-text;
+    border-color: $color-text-muted;
+  }
 }
 
-.searchInput {
-  width: 100%;
-  padding: $space-sm $space-lg $space-sm 2.5rem;
+.headerSearchInput {
+  padding: $space-sm $space-md;
   font-family: $font-family-base;
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   color: $color-text;
   background: $color-surface;
   border: 1px solid $color-border-light;
   border-radius: $radius-md;
   outline: none;
+  width: 220px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
 
@@ -106,125 +83,6 @@
   &:focus {
     border-color: $color-border-focus;
     box-shadow: 0 0 0 3px var(--color-focus-glow);
-  }
-}
-
-// ============================================================================
-// Filter Row
-// ============================================================================
-.filterRow {
-  display: flex;
-  gap: $space-md;
-  flex-wrap: wrap;
-  align-items: flex-start;
-
-  @include m.mobile {
-    flex-direction: column;
-  }
-}
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: $space-xs;
-  flex: 1;
-  min-width: 180px;
-
-  @include m.mobile {
-    min-width: 0;
-    width: 100%;
-  }
-}
-
-.filterLabel {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-text-muted;
-  margin: 0;
-}
-
-.filterSelect {
-  padding: $space-sm $space-md;
-  font-family: $font-family-base;
-  font-size: $font-size-sm;
-  color: $color-text;
-  background: $color-surface;
-  border: 1px solid $color-border-light;
-  border-radius: $radius-md;
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-
-  &:focus {
-    border-color: $color-border-focus;
-    box-shadow: 0 0 0 3px var(--color-focus-glow);
-  }
-
-  option {
-    background: $color-surface;
-    color: $color-text;
-  }
-}
-
-// ============================================================================
-// Active Filters (chips)
-// ============================================================================
-.activeFilters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $space-sm;
-  align-items: center;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: $space-xs;
-  padding: $space-xs $space-md;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-text;
-  background: $color-primary-dark;
-  border-radius: $radius-full;
-  border: 1px solid $color-primary;
-  white-space: nowrap;
-}
-
-.chipRemove {
-  background: none;
-  border: none;
-  color: $color-text-secondary;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin-left: $space-xs;
-  border-radius: 50%;
-  width: 1.1rem;
-  height: 1.1rem;
-  font-size: 0.75rem;
-  line-height: 1;
-  transition: color 0.1s ease, background 0.1s ease;
-
-  &:hover {
-    color: $color-text;
-    background: rgb(255 255 255 / 15%);
-  }
-}
-
-.clearAll {
-  @include m.button-base;
-  font-size: $font-size-sm;
-  padding: $space-xs $space-md;
-  background: transparent;
-  color: $color-text-muted;
-  border-color: $color-border-light;
-
-  &:hover {
-    color: $color-text;
-    border-color: $color-text-muted;
-    background: $color-surface-elevated;
   }
 }
 

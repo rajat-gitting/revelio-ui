@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
-import { getBlogFilters, getPosts, searchPosts } from '@/api/services/blogService';
+import { getPosts, searchPosts } from '@/api/services/blogService';
 import BlogCard from '@/components/BlogCard';
 import SkeletonCard from '@/components/SkeletonCard';
 import Button from '@/components/Button/Button';
-import type { BlogAuthorDto, BlogFiltersDto, BlogPostDto, PagedResponse } from '@/types/api';
+import type { BlogPostDto, PagedResponse } from '@/types/api';
 import { useDebounce } from '@/hooks/useDebounce';
 import styles from '@/routes/index.module.scss';
 
@@ -14,8 +14,6 @@ import styles from '@/routes/index.module.scss';
 // ---------------------------------------------------------------------------
 interface HomeSearch {
   q: string;
-  category: string[];
-  author: string[];
   /** 1-based page number as displayed in the URL (subtract 1 before calling API) */
   page: number;
 }
@@ -23,16 +21,6 @@ interface HomeSearch {
 function validateHomeSearch(raw: Record<string, unknown>): HomeSearch {
   return {
     q: typeof raw.q === 'string' ? raw.q : '',
-    category: Array.isArray(raw.category)
-      ? (raw.category as unknown[]).filter((v): v is string => typeof v === 'string')
-      : typeof raw.category === 'string'
-        ? [raw.category]
-        : [],
-    author: Array.isArray(raw.author)
-      ? (raw.author as unknown[]).filter((v): v is string => typeof v === 'string')
-      : typeof raw.author === 'string'
-        ? [raw.author]
-        : [],
     // 1-based in URL; default 1 (= API page 0)
     page: typeof raw.page === 'number' ? Math.max(1, Math.floor(raw.page)) : 1,
   };
@@ -50,19 +38,18 @@ const PAGE_SIZE = 12;
 // ---------------------------------------------------------------------------
 function HomePage() {
   const navigate = useNavigate({ from: '/' });
-  const { q, category, author, page } = Route.useSearch();
+  const { q, page } = Route.useSearch();
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Local controlled value for the search input (instant UI feedback)
   const [inputValue, setInputValue] = useState(q);
+  // Whether the header search input is expanded
+  const [searchOpen, setSearchOpen] = useState(false);
   // Error banner state (non-blocking)
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [lastValidResults, setLastValidResults] = useState<BlogPostDto[]>([]);
   const [lastValidTotal, setLastValidTotal] = useState(0);
-
-  // Filter options (fetched once on mount)
-  const [filterOptions, setFilterOptions] = useState<BlogFiltersDto>({ authors: [], categories: [] });
 
   // Pagination state
   const [pagedData, setPagedData] = useState<PagedResponse<BlogPostDto> | null>(null);
@@ -94,17 +81,6 @@ function HomePage() {
   }, [q]);
 
   // ---------------------------------------------------------------------------
-  // Fetch filter options once on mount
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    getBlogFilters()
-      .then(setFilterOptions)
-      .catch(() => {
-        // Non-critical; filters just won't be populated from server
-      });
-  }, []);
-
-  // ---------------------------------------------------------------------------
   // Fetch results whenever URL params change
   // ---------------------------------------------------------------------------
   const fetchResults = useCallback(
@@ -115,14 +91,12 @@ function HomePage() {
         // Convert 1-based URL page to 0-based API page
         const apiPage = page - 1;
 
-        const hasFilters = !!q || category.length > 0 || author.length > 0;
+        const hasFilters = !!q;
 
         if (hasFilters) {
           // Use search endpoint when filters are active
           const data = await searchPosts({
             q: q || undefined,
-            category: category.length ? category : undefined,
-            author: author.length ? author : undefined,
             page: apiPage,
             size: PAGE_SIZE,
           });
@@ -155,34 +129,13 @@ function HomePage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [q, category, author, page]
+    [q, page]
   );
 
   useEffect(() => {
     void fetchResults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, category, author, page]);
-
-  // ---------------------------------------------------------------------------
-  // Keyboard shortcut: "/" focuses the search input
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== '/') return;
-      const target = e.target as HTMLElement;
-      const tag = target.tagName;
-      const isEditable =
-        tag === 'INPUT' ||
-        tag === 'TEXTAREA' ||
-        tag === 'SELECT' ||
-        target.isContentEditable;
-      if (isEditable) return;
-      e.preventDefault();
-      searchInputRef.current?.focus();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [q, page]);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -191,38 +144,27 @@ function HomePage() {
     setInputValue(e.target.value);
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = Array.from(e.target.selectedOptions, (o) => o.value).filter(Boolean);
-    void navigate({ search: (prev) => ({ ...prev, category: selected, page: 1 }), replace: true });
+  const handleSearchIconClick = () => {
+    setSearchOpen(true);
+    // Focus the input after it becomes visible
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
   };
 
-  const handleAuthorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = Array.from(e.target.selectedOptions, (o) => o.value).filter(Boolean);
-    void navigate({ search: (prev) => ({ ...prev, author: selected, page: 1 }), replace: true });
-  };
-
-  const removeCategory = (cat: string) => {
-    void navigate({
-      search: (prev) => ({ ...prev, category: category.filter((c) => c !== cat), page: 1 }),
-      replace: true,
-    });
-  };
-
-  const removeAuthor = (a: string) => {
-    void navigate({
-      search: (prev) => ({ ...prev, author: author.filter((au) => au !== a), page: 1 }),
-      replace: true,
-    });
-  };
-
-  const removeSearchQuery = () => {
-    setInputValue('');
-    void navigate({ search: (prev) => ({ ...prev, q: '', page: 1 }), replace: true });
+  const handleSearchBlur = () => {
+    // Collapse only if the input is empty; use a short timeout to avoid
+    // conflicting with the icon-click handler
+    setTimeout(() => {
+      if (!inputValue) {
+        setSearchOpen(false);
+      }
+    }, 150);
   };
 
   const clearAll = () => {
     setInputValue('');
-    void navigate({ search: () => ({ q: '', category: [], author: [], page: 1 }), replace: true });
+    void navigate({ search: () => ({ q: '', page: 1 }), replace: true });
   };
 
   // Pagination handlers
@@ -235,7 +177,7 @@ function HomePage() {
     void navigate({ search: (prev) => ({ ...prev, page: page + 1 }) });
   };
 
-  const hasActiveFilters = !!q || category.length > 0 || author.length > 0;
+  const hasActiveFilters = !!q;
 
   // For pagination controls — use pagedData when available, else derive from total
   const totalPages = pagedData ? pagedData.totalPages : Math.ceil(total / PAGE_SIZE);
@@ -253,121 +195,35 @@ function HomePage() {
       <header className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Blog</h1>
         <div className={styles.headerActions}>
+          {searchOpen && (
+            <input
+              ref={searchInputRef}
+              type="search"
+              className={styles.headerSearchInput}
+              placeholder="Search posts…"
+              value={inputValue}
+              onChange={handleSearchChange}
+              onBlur={handleSearchBlur}
+              aria-label="Search posts"
+              data-testid="search-input"
+            />
+          )}
+          <button
+            className={styles.searchIconButton}
+            onClick={handleSearchIconClick}
+            aria-label="Open search"
+            data-testid="search-icon-button"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
           <Button variant="primary" onClick={() => { void navigate({ to: '/blog/create' }); }}>
             Create Blog
           </Button>
         </div>
       </header>
-
-      {/* ── Controls ── */}
-      <div className={styles.controls}>
-        {/* Search input — always visible */}
-        <div className={styles.searchRow}>
-          <div className={styles.searchInputWrapper}>
-            <span className={styles.searchIcon} aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </span>
-            <input
-              ref={searchInputRef}
-              type="search"
-              className={styles.searchInput}
-              placeholder="Search posts… (press / to focus)"
-              value={inputValue}
-              onChange={handleSearchChange}
-              aria-label="Search posts"
-              data-testid="search-input"
-            />
-          </div>
-        </div>
-
-        {/* Filter row */}
-        <div className={styles.filterRow} data-testid="filter-row">
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="category-filter">Category / Tag</label>
-            <select
-              id="category-filter"
-              className={styles.filterSelect}
-              multiple
-              size={1}
-              value={category}
-              onChange={handleCategoryChange}
-              aria-label="Filter by Category / Tag"
-              data-testid="category-filter"
-            >
-              {filterOptions.categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="author-filter">Author</label>
-            <select
-              id="author-filter"
-              className={styles.filterSelect}
-              multiple
-              size={1}
-              value={author}
-              onChange={handleAuthorChange}
-              aria-label="Filter by Author"
-              data-testid="author-filter"
-            >
-              {filterOptions.authors.map((a: BlogAuthorDto) => (
-                <option key={a.name} value={a.name}>{a.name}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Active filter chips */}
-        {hasActiveFilters && (
-          <div className={styles.activeFilters} data-testid="active-filters">
-            {q && (
-              <span className={styles.chip} data-testid="chip-query">
-                Search: {q}
-                <button
-                  className={styles.chipRemove}
-                  onClick={removeSearchQuery}
-                  aria-label={`Remove search term "${q}"`}
-                >
-                  ×
-                </button>
-              </span>
-            )}
-            {category.map((cat) => (
-              <span key={cat} className={styles.chip} data-testid={`chip-category-${cat}`}>
-                {cat}
-                <button
-                  className={styles.chipRemove}
-                  onClick={() => removeCategory(cat)}
-                  aria-label={`Remove category filter "${cat}"`}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-            {author.map((a) => (
-              <span key={a} className={styles.chip} data-testid={`chip-author-${a}`}>
-                {a}
-                <button
-                  className={styles.chipRemove}
-                  onClick={() => removeAuthor(a)}
-                  aria-label={`Remove author filter "${a}"`}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-            {/* Clear all */}
-            <button className={styles.clearAll} onClick={clearAll} data-testid="clear-all">
-              Clear all
-            </button>
-          </div>
-        )}
-      </div>
 
       {/* ── Non-blocking error banner ── */}
       {errorBanner && (
@@ -400,7 +256,7 @@ function HomePage() {
         <div className={styles.emptyState} data-testid="empty-state">
           <h2 className={styles.emptyStateTitle}>No posts found</h2>
           <p className={styles.emptyStateText}>
-            No posts match your current search or filters — try a different search or clear your filters.
+            No posts match your current search — try a different search or clear it.
           </p>
           <button className={styles.emptyStateReset} onClick={clearAll} data-testid="empty-state-reset">
             Clear filters
