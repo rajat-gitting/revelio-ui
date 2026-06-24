@@ -479,8 +479,10 @@ describe('Criterion 9 — Vertical spacing gap between hero and blog grid', () =
 
     const { container } = renderHomePage();
 
+    // Wait for both the header AND the blog-section to be rendered
     await waitFor(() => {
       expect(container.querySelector('header')).toBeInTheDocument();
+      expect(container.querySelector('#blog-section')).toBeInTheDocument();
     });
 
     const header = container.querySelector('header')!;
@@ -560,12 +562,12 @@ describe('Criterion 10 — Keyboard accessibility', () => {
 
     const { container } = renderHomePage();
 
+    // Wait for both the header and blog content to finish rendering
     await waitFor(() => {
       expect(container.querySelector('header')).toBeInTheDocument();
+      // Blog card for "Test Post" should also be present
+      expect(screen.getByText('Test Post')).toBeInTheDocument();
     });
-
-    // Blog card for "Test Post" should also be present
-    expect(screen.getByText('Test Post')).toBeInTheDocument();
   });
 });
 
@@ -579,12 +581,12 @@ describe('HomePage simple header integration (CR-35)', () => {
     vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
-  it('homepage renders a simple page header (no hero banner) with inline search bar', async () => {
+  it('homepage renders a simple page header (no hero banner) with search toggle in header', async () => {
     renderHomePage();
 
     await waitFor(() => {
-      // CR-37: search is now inline on the home page (no separate 'Search blogs →' link)
-      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+      // CR-40: search is toggled from a button in the header (no longer always visible)
+      expect(screen.getByTestId('search-toggle')).toBeInTheDocument();
     });
 
     // The full hero banner texts are gone

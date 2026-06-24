@@ -110,3 +110,54 @@ test('the blog list actually shows posts from the API', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await expect(page.getByText('Smoke Post 1')).toBeVisible();
 });
+
+// CR-40: search and filter toggle behaviour
+test('CR-40: search input is hidden by default and revealed by clicking the search toggle', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  // Search input must not be visible by default
+  await expect(page.getByTestId('search-input')).not.toBeVisible();
+
+  // Click the search toggle button
+  await page.getByTestId('search-toggle').click();
+
+  // Search input should now be visible
+  await expect(page.getByTestId('search-input')).toBeVisible();
+});
+
+test('CR-40: filter dropdowns are hidden by default and revealed by clicking the filter toggle', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  // Filter dropdowns must not be visible by default
+  await expect(page.getByTestId('category-filter')).not.toBeVisible();
+  await expect(page.getByTestId('author-filter')).not.toBeVisible();
+
+  // Click the filter toggle button
+  await page.getByTestId('filter-toggle').click();
+
+  // Both filter dropdowns should now be visible
+  await expect(page.getByTestId('category-filter')).toBeVisible();
+  await expect(page.getByTestId('author-filter')).toBeVisible();
+});
+
+test('CR-40: collapsing search box keeps active filter chip visible', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/?q=smoke', { waitUntil: 'networkidle' });
+
+  // Active chip for query should be visible even with controls collapsed
+  await expect(page.getByTestId('chip-query')).toBeVisible();
+
+  // Search input should NOT be visible (controls collapsed by default)
+  await expect(page.getByTestId('search-input')).not.toBeVisible();
+});
+
+test('CR-40: Create Blog button navigates to the blog creation page', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  await page.getByRole('button', { name: /create blog/i }).click();
+  await page.waitForURL('**/blog/create', { timeout: 5000 });
+  expect(page.url()).toContain('/blog/create');
+});
