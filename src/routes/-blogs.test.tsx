@@ -103,9 +103,11 @@ describe('CR-1: Search input is always visible', () => {
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
-  it('renders the search input immediately on page load (no click required)', async () => {
+  it('renders the search input after clicking the search toggle', async () => {
     renderHomePage();
-    // Input must be present without any user interaction
+    // Open search panel first (hidden by default per CR-39)
+    await waitFor(() => expect(screen.getByTestId('search-toggle')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('search-toggle'));
     await waitFor(() => expect(screen.getByTestId('search-input')).toBeInTheDocument());
   });
 });
@@ -130,6 +132,8 @@ describe('CR-2: Search with debounce', () => {
 
     // Wait for TanStack Router to mount the page and initial fetch to settle
     await act(() => vi.runAllTimersAsync());
+    // Open search panel (hidden by default per CR-39)
+    fireEvent.click(screen.getByTestId('search-toggle'));
     const initialCallCount = vi.mocked(searchPosts).mock.calls.length;
 
     const input = screen.getByTestId('search-input');
@@ -146,6 +150,8 @@ describe('CR-2: Search with debounce', () => {
 
     // Wait for TanStack Router to mount
     await act(() => vi.runAllTimersAsync());
+    // Open search panel (hidden by default per CR-39)
+    fireEvent.click(screen.getByTestId('search-toggle'));
 
     const input = screen.getByTestId('search-input');
     fireEvent.change(input, { target: { value: 'react' } });
@@ -171,20 +177,29 @@ describe('CR-3: Filter controls', () => {
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
-  it('renders Category / Tag multi-select', async () => {
+  it('renders Category / Tag multi-select after opening filters panel', async () => {
     renderHomePage();
+    // Open filters panel (hidden by default per CR-39)
+    await waitFor(() => expect(screen.getByTestId('filters-toggle')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('filters-toggle'));
     await waitFor(() => expect(screen.getByTestId('category-filter')).toBeInTheDocument());
     expect(screen.getByLabelText(/category \/ tag/i)).toBeInTheDocument();
   });
 
-  it('renders Author filter', async () => {
+  it('renders Author filter after opening filters panel', async () => {
     renderHomePage();
+    // Open filters panel (hidden by default per CR-39)
+    await waitFor(() => expect(screen.getByTestId('filters-toggle')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('filters-toggle'));
     await waitFor(() => expect(screen.getByTestId('author-filter')).toBeInTheDocument());
     expect(screen.getByLabelText(/author/i)).toBeInTheDocument();
   });
 
   it('populates category options from getBlogFilters', async () => {
     renderHomePage();
+    // Open filters panel (hidden by default per CR-39)
+    await waitFor(() => expect(screen.getByTestId('filters-toggle')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('filters-toggle'));
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Tech' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Design' })).toBeInTheDocument();
@@ -193,6 +208,9 @@ describe('CR-3: Filter controls', () => {
 
   it('populates author options from getBlogFilters', async () => {
     renderHomePage();
+    // Open filters panel (hidden by default per CR-39)
+    await waitFor(() => expect(screen.getByTestId('filters-toggle')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('filters-toggle'));
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Alice' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Bob' })).toBeInTheDocument();
@@ -432,9 +450,15 @@ describe('CR-9: Responsive structure', () => {
 
     await waitFor(() => screen.getByTestId('result-count'));
 
-    expect(screen.getByTestId('search-input')).toBeInTheDocument();
-    expect(screen.getByTestId('category-filter')).toBeInTheDocument();
-    expect(screen.getByTestId('author-filter')).toBeInTheDocument();
+    // Open both panels (hidden by default per CR-39)
+    fireEvent.click(screen.getByTestId('search-toggle'));
+    fireEvent.click(screen.getByTestId('filters-toggle'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+      expect(screen.getByTestId('category-filter')).toBeInTheDocument();
+      expect(screen.getByTestId('author-filter')).toBeInTheDocument();
+    });
     expect(screen.getByTestId('result-count')).toBeInTheDocument();
     expect(screen.getByTestId('results-grid')).toBeInTheDocument();
   });
@@ -450,24 +474,28 @@ describe('CR-10: Keyboard shortcut "/"', () => {
     vi.mocked(getBlogFilters).mockResolvedValue(makeFilters());
   });
 
-  it('pressing "/" focuses the search input when focus is on body', async () => {
+  it('pressing "/" opens the search panel and focuses the search input', async () => {
     renderHomePage();
 
-    await waitFor(() => screen.getByTestId('search-input'));
+    // Wait for page to render
+    await waitFor(() => screen.getByTestId('blogs-page'));
 
-    const input = screen.getByTestId('search-input');
     // Ensure focus is NOT inside an input
     document.body.focus();
 
+    // Press "/" — this should open search panel and focus the input
     fireEvent.keyDown(document, { key: '/', target: document.body });
 
-    expect(document.activeElement).toBe(input);
+    // Input should now appear in DOM
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    });
   });
 
   it('pressing "/" when focus is already inside an input does NOT move focus', async () => {
     renderHomePage();
 
-    await waitFor(() => screen.getByTestId('search-input'));
+    await waitFor(() => screen.getByTestId('blogs-page'));
 
     const otherInput = document.createElement('input');
     document.body.appendChild(otherInput);
@@ -497,6 +525,10 @@ describe('CR-11: In-place updates', () => {
     renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
+
+    // Open search panel (hidden by default per CR-39)
+    fireEvent.click(screen.getByTestId('search-toggle'));
+    await waitFor(() => screen.getByTestId('search-input'));
 
     // Simulate a new query
     vi.mocked(searchPosts).mockResolvedValue(makeSearchResponse(makePosts(1)));
@@ -535,6 +567,10 @@ describe('CR-12: Non-blocking error handling', () => {
     renderHomePage();
 
     await waitFor(() => screen.getByTestId('results-grid'));
+
+    // Open search panel (hidden by default per CR-39)
+    fireEvent.click(screen.getByTestId('search-toggle'));
+    await waitFor(() => screen.getByTestId('search-input'));
 
     // Second call fails
     vi.mocked(searchPosts).mockRejectedValue(new Error('500 Internal Server Error'));

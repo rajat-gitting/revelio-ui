@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import {
   createMemoryHistory,
   createRootRoute,
@@ -579,11 +579,17 @@ describe('HomePage simple header integration (CR-35)', () => {
     vi.mocked(getBlogFilters).mockResolvedValue({ authors: [], categories: [] });
   });
 
-  it('homepage renders a simple page header (no hero banner) with inline search bar', async () => {
+  it('homepage renders a simple page header (no hero banner) with search accessible via toggle', async () => {
     renderHomePage();
 
+    // Wait for page to render and open search panel (hidden by default per CR-39)
     await waitFor(() => {
-      // CR-37: search is now inline on the home page (no separate 'Search blogs →' link)
+      expect(screen.getByTestId('search-toggle')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId('search-toggle'));
+
+    await waitFor(() => {
+      // CR-37/CR-39: search is accessible on the home page via the search toggle
       expect(screen.getByTestId('search-input')).toBeInTheDocument();
     });
 

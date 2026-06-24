@@ -110,3 +110,60 @@ test('the blog list actually shows posts from the API', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await expect(page.getByText('Smoke Post 1')).toBeVisible();
 });
+
+// CR-39: Search and filter controls are hidden by default, revealed by header buttons
+
+test('CR-39: search input hidden by default, revealed by clicking search icon button', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  // Search input should not be visible initially
+  await expect(page.getByTestId('search-input')).toHaveCount(0);
+
+  // Click the search toggle button
+  await page.getByTestId('search-toggle').click();
+
+  // Search input should now be visible
+  await expect(page.getByTestId('search-input')).toBeVisible();
+});
+
+test('CR-39: typing in revealed search input filters blog posts', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  // Open search
+  await page.getByTestId('search-toggle').click();
+  await expect(page.getByTestId('search-input')).toBeVisible();
+
+  // Type a search term
+  await page.getByTestId('search-input').fill('Smoke');
+
+  // The search chip should appear (debounce)
+  await expect(page.getByTestId('active-filters')).toBeVisible({ timeout: 2000 });
+});
+
+test('CR-39: filter dropdowns hidden by default, revealed by clicking filter icon button', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  // Filter dropdowns should not be visible initially
+  await expect(page.getByTestId('category-filter')).toHaveCount(0);
+  await expect(page.getByTestId('author-filter')).toHaveCount(0);
+
+  // Click the filters toggle button
+  await page.getByTestId('filters-toggle').click();
+
+  // Both filter dropdowns should now be visible
+  await expect(page.getByTestId('category-filter')).toBeVisible();
+  await expect(page.getByTestId('author-filter')).toBeVisible();
+});
+
+test('CR-39: Create Blog button navigates to blog creation page', async ({ page }) => {
+  await stubApi(page);
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  await page.getByRole('button', { name: /create blog/i }).click();
+
+  // Should navigate to /blog/create
+  await expect(page).toHaveURL(/\/blog\/create/);
+});
