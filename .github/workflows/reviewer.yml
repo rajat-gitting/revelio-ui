@@ -76,7 +76,14 @@ jobs:
             --mcp-config ${{ runner.temp }}/mcp-config.json
             --allowedTools "Read,Glob,Grep,Bash(git:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr review:*),Bash(gh pr comment:*),Bash(gh pr checks:*),Bash(gh pr status:*),Bash(gh api:*),Bash(gh search:*),mcp__atlassian,mcp__github_inline_comment__create_inline_comment,mcp__github_comment__update_claude_comment,mcp__github_ci__get_ci_status"
           prompt: |
-            Review this pull request as a senior engineer.
+            Review pull request #${{ github.event.pull_request.number }} in
+            the ${{ github.repository }} repository as a senior engineer, NOW.
+            This is a non-interactive CI run: do NOT list pull requests, do NOT
+            ask which PR to review, and do NOT wait for a `/review` command or
+            any further input — act on this exact PR immediately. You MUST
+            finish by submitting a GitHub review (approve or request changes)
+            and posting the Jira verdict comment described below; a run that
+            ends without submitting a review has failed its job.
 
             SCOPE — read this first. This ticket may span several repositories;
             each repo's PR is responsible for ONLY the criteria listed in its
