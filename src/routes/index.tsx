@@ -183,11 +183,18 @@ function HomePage() {
       if (isEditable) return;
       e.preventDefault();
       setSearchOpen(true);
-      searchInputRef.current?.focus();
+      // focus is handled by the useEffect below that watches searchOpen
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Focus the search input whenever the search panel opens (handles async state update)
+  useEffect(() => {
+    if (searchOpen) {
+      searchInputRef.current?.focus();
+    }
+  }, [searchOpen]);
 
   // ---------------------------------------------------------------------------
   // Handlers

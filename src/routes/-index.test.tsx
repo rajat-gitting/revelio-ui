@@ -395,4 +395,24 @@ describe('CR-40 — search/filter toggle behaviour', () => {
     const header = document.querySelector('header');
     expect(header).toContainElement(createBtn);
   });
+
+  // Keyboard shortcut: pressing "/" expands the search box and focuses the input
+  it('pressing "/" when search is collapsed expands search and focuses the input', async () => {
+    renderHomePage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('search-toggle')).toBeInTheDocument();
+    });
+
+    // Search input must not exist yet
+    expect(screen.queryByTestId('search-input')).not.toBeInTheDocument();
+
+    // Fire the "/" keydown on the document body
+    fireEvent.keyDown(document, { key: '/' });
+
+    // The search input should now be mounted
+    await waitFor(() => {
+      expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    });
+  });
 });
