@@ -72,6 +72,10 @@ function HomePage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // UI visibility state — does NOT affect q/category/author URL params
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   // Debounced query — ≤300 ms
   const debouncedQ = useDebounce(inputValue, 300);
 
@@ -164,7 +168,7 @@ function HomePage() {
   }, [q, category, author, page]);
 
   // ---------------------------------------------------------------------------
-  // Keyboard shortcut: "/" focuses the search input
+  // Keyboard shortcut: "/" focuses the search input (and expands it if collapsed)
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -178,11 +182,19 @@ function HomePage() {
         target.isContentEditable;
       if (isEditable) return;
       e.preventDefault();
-      searchInputRef.current?.focus();
+      setSearchOpen(true);
+      // focus is handled by the useEffect below that watches searchOpen
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Focus the search input whenever the search panel opens (handles async state update)
+  useEffect(() => {
+    if (searchOpen) {
+      searchInputRef.current?.focus();
+    }
+  }, [searchOpen]);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -249,10 +261,39 @@ function HomePage() {
   // ---------------------------------------------------------------------------
   return (
     <div className={styles.page} data-testid="blogs-page">
-      {/* ── Page header with Create Blog button ── */}
+      {/* ── Page header with Create Blog button and search/filter toggles ── */}
       <header className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Blog</h1>
         <div className={styles.headerActions}>
+          {/* Search toggle button */}
+          <button
+            className={styles.iconButton}
+            onClick={() => { setSearchOpen((prev) => !prev); }}
+            aria-label={searchOpen ? 'Collapse search' : 'Expand search'}
+            aria-expanded={searchOpen}
+            data-testid="search-toggle"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+
+          {/* Filter toggle button */}
+          <button
+            className={styles.iconButton}
+            onClick={() => { setFiltersOpen((prev) => !prev); }}
+            aria-label={filtersOpen ? 'Hide filters' : 'Show filters'}
+            aria-expanded={filtersOpen}
+            data-testid="filter-toggle"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+              <line x1="11" y1="18" x2="13" y2="18" />
+            </svg>
+          </button>
+
           <Button variant="primary" onClick={() => { void navigate({ to: '/blog/create' }); }}>
             Create Blog
           </Button>
@@ -261,68 +302,72 @@ function HomePage() {
 
       {/* ── Controls ── */}
       <div className={styles.controls}>
-        {/* Search input — always visible */}
-        <div className={styles.searchRow}>
-          <div className={styles.searchInputWrapper}>
-            <span className={styles.searchIcon} aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </span>
-            <input
-              ref={searchInputRef}
-              type="search"
-              className={styles.searchInput}
-              placeholder="Search posts… (press / to focus)"
-              value={inputValue}
-              onChange={handleSearchChange}
-              aria-label="Search posts"
-              data-testid="search-input"
-            />
+        {/* Search input — only visible when searchOpen */}
+        {searchOpen && (
+          <div className={styles.searchRow}>
+            <div className={styles.searchInputWrapper}>
+              <span className={styles.searchIcon} aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </span>
+              <input
+                ref={searchInputRef}
+                type="search"
+                className={styles.searchInput}
+                placeholder="Search posts… (press / to focus)"
+                value={inputValue}
+                onChange={handleSearchChange}
+                aria-label="Search posts"
+                data-testid="search-input"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Filter row */}
-        <div className={styles.filterRow} data-testid="filter-row">
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="category-filter">Category / Tag</label>
-            <select
-              id="category-filter"
-              className={styles.filterSelect}
-              multiple
-              size={1}
-              value={category}
-              onChange={handleCategoryChange}
-              aria-label="Filter by Category / Tag"
-              data-testid="category-filter"
-            >
-              {filterOptions.categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+        {/* Filter row — only visible when filtersOpen */}
+        {filtersOpen && (
+          <div className={styles.filterRow} data-testid="filter-row">
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel} htmlFor="category-filter">Category / Tag</label>
+              <select
+                id="category-filter"
+                className={styles.filterSelect}
+                multiple
+                size={1}
+                value={category}
+                onChange={handleCategoryChange}
+                aria-label="Filter by Category / Tag"
+                data-testid="category-filter"
+              >
+                {filterOptions.categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel} htmlFor="author-filter">Author</label>
+              <select
+                id="author-filter"
+                className={styles.filterSelect}
+                multiple
+                size={1}
+                value={author}
+                onChange={handleAuthorChange}
+                aria-label="Filter by Author"
+                data-testid="author-filter"
+              >
+                {filterOptions.authors.map((a: BlogAuthorDto) => (
+                  <option key={a.name} value={a.name}>{a.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
+        )}
 
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel} htmlFor="author-filter">Author</label>
-            <select
-              id="author-filter"
-              className={styles.filterSelect}
-              multiple
-              size={1}
-              value={author}
-              onChange={handleAuthorChange}
-              aria-label="Filter by Author"
-              data-testid="author-filter"
-            >
-              {filterOptions.authors.map((a: BlogAuthorDto) => (
-                <option key={a.name} value={a.name}>{a.name}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Active filter chips */}
+        {/* Active filter chips — always visible so users can see and clear active filters */}
         {hasActiveFilters && (
           <div className={styles.activeFilters} data-testid="active-filters">
             {q && (
